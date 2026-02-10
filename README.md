@@ -1,2 +1,5 @@
-# MarkEdit
-专为全生态设计的专业 Markdown 编辑器。
+# Firebase Studio
+
+This is a NextJS starter in Firebase Studio.
+
+To get started, take a look at src/app/page.tsx.
