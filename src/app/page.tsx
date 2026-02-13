@@ -86,6 +86,7 @@ export default function MarkEditApp() {
       
       const importedDoc = documentStore.create(title, content);
       setDocuments(documentStore.getAll());
+      // 强制更新引用以触发编辑器子组件刷新
       setActiveDoc({ ...importedDoc });
       
       toast({ title: t.importSuccess, description: `${t.importDesc}: ${file.name}` });

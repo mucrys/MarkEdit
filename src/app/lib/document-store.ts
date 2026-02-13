@@ -1,4 +1,3 @@
-
 export interface MarkDoc {
   id: string;
   title: string;
@@ -8,49 +7,27 @@ export interface MarkDoc {
 
 const STORAGE_KEY = 'markedit_documents';
 
-const TEST_MARKDOWN = [
-  "# MarkEdit 全生态功能测试",
+const WELCOME_MD = [
+  "# 欢迎使用 MarkEdit",
   "",
-  "[TOC]",
+  "这是一份演示文档，您可以自由编辑或删除它。",
   "",
-  "## 1. 数学公式 (LaTeX)",
-  "这是行内公式：$E = mc^2$。",
+  "## 主要功能",
+  "- **实时预览**：左侧编辑，右侧即时查看效果。",
+  "- **AI 润色**：选中一段文字，点击工具栏顶部的 AI 图标即可优化文案。",
+  "- **数学公式**：支持 LaTeX，例如 $E=mc^2$。",
+  "- **流程图**：支持 Mermaid 图表。",
+  "- **多端适配**：支持 iOS/Android PWA 模式全屏使用。",
   "",
-  "下面是一个复杂的块级公式：",
-  "$$\\int_{a}^{b} x^2 dx = \\frac{1}{3}(b^3 - a^3)$$",
+  "## 快速开始",
+  "点击左侧边栏的 **+** 按钮即可创建一个全新的空白文档。",
   "",
-  "## 2. 流程图 (Mermaid)",
-  "支持无缝嵌入的 Mermaid 图表：",
   "```mermaid",
-  "graph TD",
-  "    A[开始撰写] --> B{开启 Live 模式?}",
-  "    B -- 是 --> C[左侧编辑, 右侧即时预览]",
-  "    B -- 否 --> D[专注模式]",
-  "    C --> E[导出 .md 文件]",
-  "    D --> E",
-  "```",
-  "",
-  "## 3. 代码高亮",
-  "```typescript",
-  "function welcome() {",
-  "  console.log(\"欢迎使用 MarkEdit，全生态 Markdown 协作利器！\");",
-  "}",
-  "```",
-  "",
-  "## 4. 任务列表",
-  "- [x] 集成 Mermaid 流程图",
-  "- [x] 支持 LaTeX 数学公式",
-  "- [ ] 开发多端同步",
-  "",
-  "## 5. 其他高级语法",
-  "这是一个脚注引用[^1]。我们可以加点表情：:rocket: :heart: :fire:",
-  "",
-  "| 功能 | 状态 | 优先级 |",
-  "| :--- | :---: | ---: |",
-  "| 实时预览 | 完美 | 关键 |",
-  "| AI 润色 | 已集成 | 高 |",
-  "",
-  "[^1]: 这是脚注的具体内容，会自动美化显示在底部。"
+  "graph LR",
+  "  A[灵感] --> B(记录)",
+  "  B --> C{AI 润色}",
+  "  C --> D[完美作品]",
+  "```"
 ].join('\n');
 
 export const documentStore = {
@@ -58,12 +35,11 @@ export const documentStore = {
     if (typeof window === 'undefined') return [];
     const stored = localStorage.getItem(STORAGE_KEY);
     
-    // 如果是首次运行（stored 为 null），则初始化演示文档
     if (stored === null) {
       const initialDoc: MarkDoc = {
         id: crypto.randomUUID(),
         title: '欢迎使用 MarkEdit',
-        content: TEST_MARKDOWN,
+        content: WELCOME_MD,
         updatedAt: Date.now(),
       };
       const initialDocs = [initialDoc];

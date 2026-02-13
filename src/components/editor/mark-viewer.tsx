@@ -24,6 +24,10 @@ if (typeof window !== 'undefined') {
   });
 }
 
+/** 
+ * 统一的 Slugify 函数，供预览和 TOC 共用 
+ * 增加对中文字符的支持，并确保 ID 符合 CSS 选择器规范
+ */
 export const slugify = (text: string): string => {
   return text
     .toLowerCase()
@@ -33,7 +37,8 @@ export const slugify = (text: string): string => {
     .replace(/^-+|-+$/g, '');
 };
 
-const extractText = (node: any): string => {
+/** 递归提取 React 节点中的纯文本 */
+export const extractText = (node: any): string => {
   if (typeof node === 'string' || typeof node === 'number') return String(node);
   if (Array.isArray(node)) return node.map(extractText).join('');
   if (React.isValidElement(node) && node.props && 'children' in node.props) return extractText(node.props.children);
@@ -152,6 +157,7 @@ export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
                       const targetId = decodeURIComponent(href.slice(1));
                       const container = forwardedRef?.current;
                       if (!container) return;
+                      // 增强匹配逻辑，优先查找精确 ID
                       const targetElement = 
                         container.querySelector(`[id="${targetId}"]`) || 
                         container.querySelector(`[id="user-content-${targetId}"]`);
