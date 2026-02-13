@@ -10,6 +10,7 @@ import remarkEmoji from 'remark-emoji';
 import mermaid from 'mermaid';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { Copy, Check } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 
 if (typeof window !== 'undefined') {
@@ -49,6 +50,49 @@ const MermaidChart = ({ chart }: { chart: string }) => {
   );
 };
 
+const CodeBlock = ({ language, children, ...props }: any) => {
+  const [copied, setCopied] = useState(false);
+  const codeString = String(children).replace(/\n$/, '');
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(codeString);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="group relative my-6 rounded-xl border border-border/50 bg-muted/10 overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-1.5 bg-muted/20 border-b border-border/20">
+        <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
+          {language || 'text'}
+        </span>
+        <button 
+          onClick={copyToClipboard}
+          className="p-1 rounded-md hover:bg-white transition-all text-muted-foreground hover:text-primary active:scale-90"
+          title="复制代码"
+        >
+          {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+        </button>
+      </div>
+      <SyntaxHighlighter
+        style={oneLight}
+        language={language}
+        PreTag="div"
+        customStyle={{
+          margin: 0,
+          padding: '1.25rem',
+          fontSize: '0.85rem',
+          backgroundColor: 'transparent',
+          lineHeight: '1.6',
+        }}
+        {...props}
+      >
+        {codeString}
+      </SyntaxHighlighter>
+    </div>
+  );
+};
+
 interface MarkViewerProps {
   content: string;
   forwardedRef?: React.RefObject<HTMLDivElement | null>;
@@ -80,16 +124,22 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
                     onClick={(e) => {
                       e.preventDefault();
                       const targetId = decodeURIComponent(href.slice(1));
-                      // 某些解析器会添加前缀，尝试查找原始 ID 或前缀 ID
-                      const targetElement = document.getElementById(targetId) || document.getElementById(`user-content-${targetId}`);
-                      if (targetElement && forwardedRef?.current) {
-                        const container = forwardedRef.current;
+                      const container = forwardedRef?.current;
+                      if (!container) return;
+
+                      // 查找目标元素，兼容 remark-gfm 的前缀 ID
+                      const targetElement = 
+                        document.getElementById(targetId) || 
+                        container.querySelector(`[id="${targetId}"]`) ||
+                        container.querySelector(`[id="user-content-${targetId}"]`);
+
+                      if (targetElement) {
                         const containerRect = container.getBoundingClientRect();
                         const targetRect = targetElement.getBoundingClientRect();
                         const relativeTop = targetRect.top - containerRect.top + container.scrollTop;
                         
                         container.scrollTo({
-                          top: relativeTop,
+                          top: relativeTop - 20, // 留一点边距
                           behavior: 'smooth'
                         });
                       }
@@ -100,19 +150,8 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
               return <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline" />;
             },
             pre: ({ children }: any) => {
-              const childProps = (children as any)?.props || {};
-              const className = childProps.className || '';
-              const isMermaid = className.includes('language-mermaid');
-              
-              if (isMermaid) {
-                return <div className="my-2 p-0 bg-transparent border-none overflow-visible">{children}</div>;
-              }
-              
-              return (
-                <pre className="bg-muted/30 text-foreground p-4 md:p-5 rounded-xl overflow-x-auto my-6 border border-border/50">
-                  {children}
-                </pre>
-              );
+              // 这里的 children 通常是一个 code 组件
+              return <>{children}</>;
             },
             code: ({ node, inline, className, children, ...props }: any) => {
               const match = /language-(\w+)/.exec(className || '');
@@ -122,24 +161,11 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
                 return <MermaidChart chart={String(children).replace(/\n$/, '')} />;
               }
 
-              if (!inline && language) {
+              if (!inline) {
                 return (
-                  <SyntaxHighlighter
-                    style={oneLight}
-                    language={language}
-                    PreTag="div"
-                    className="rounded-xl my-6 border border-border/50 overflow-hidden"
-                    customStyle={{
-                      margin: 0,
-                      padding: '1.25rem',
-                      fontSize: '0.9rem',
-                      backgroundColor: 'hsl(var(--muted) / 0.1)',
-                      lineHeight: '1.6',
-                    }}
-                    {...props}
-                  >
-                    {String(children).replace(/\n$/, '')}
-                  </SyntaxHighlighter>
+                  <CodeBlock language={language} {...props}>
+                    {children}
+                  </CodeBlock>
                 );
               }
 
