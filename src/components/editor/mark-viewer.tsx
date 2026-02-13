@@ -26,7 +26,6 @@ if (typeof window !== 'undefined') {
 
 /** 
  * 统一的 Slugify 函数，供预览和 TOC 共用 
- * 增加对中文字符的支持，确保 ID 稳定
  */
 export const slugify = (text: string): string => {
   return text
@@ -153,7 +152,7 @@ export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
                     className="text-primary hover:underline cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
-                      e.stopPropagation(); // 阻止全局锚点跳转，防止视窗错位
+                      e.stopPropagation();
                       const targetId = decodeURIComponent(href.slice(1));
                       const container = forwardedRef?.current;
                       if (!container) return;
@@ -178,7 +177,7 @@ export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
             h4: ({ children }) => <h4 id={generateId(children)}>{children}</h4>,
             h5: ({ children }) => <h5 id={generateId(children)}>{children}</h5>,
             h6: ({ children }) => <h6 id={generateId(children)}>{children}</h6>,
-            pre: ({ children }: any) => <span className="block">{children}</span>, // 使用 span 避免 Hydration 错误
+            pre: ({ children }: any) => <span className="block">{children}</span>,
             code: ({ node, className, children, ...props }: any) => {
               const match = /language-(\w+)/.exec(className || '');
               const language = match ? match[1] : '';

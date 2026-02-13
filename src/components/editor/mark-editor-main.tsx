@@ -66,7 +66,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
   useEffect(() => {
     setContent(doc.content);
     setTitle(doc.title);
-  }, [doc]);
+  }, [doc.id, doc.content, doc.title]);
 
   const handleSave = () => {
     documentStore.save({ ...doc, title, content });
@@ -75,7 +75,6 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
   };
 
   const handleExportPdf = () => {
-    // 调用原生打印，CSS media print 会负责 UI 隐藏和布局重置
     window.print();
   };
 
@@ -230,7 +229,6 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
           "flex-1 h-full grid",
           showEditor && showPreview && !actualIsMobile ? "grid-cols-2" : "grid-cols-1"
         )}>
-          {/* Editor Pane */}
           <div className={cn(
             "h-full flex flex-col bg-background overflow-hidden print:hidden",
             !showEditor && "hidden",
@@ -261,7 +259,6 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
             </div>
           </div>
 
-          {/* Preview Pane */}
           <div className={cn(
             "h-full bg-background overflow-hidden",
             !showPreview && "hidden print:block",

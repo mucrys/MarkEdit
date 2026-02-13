@@ -51,7 +51,7 @@ export default function MarkEditApp() {
     if (activeDoc) {
       const updated = docs.find(d => d.id === activeDoc.id);
       if (updated) {
-        setActiveDoc({ ...updated }); // 确保解构以强制子组件感知更新
+        setActiveDoc({ ...updated });
       }
     }
   };
@@ -83,12 +83,9 @@ export default function MarkEditApp() {
     reader.onload = (event) => {
       const content = event.target?.result as string;
       const title = file.name.replace('.md', '');
-      
       const importedDoc = documentStore.create(title, content);
       setDocuments(documentStore.getAll());
-      // 关键：立即更新 activeDoc 为新导入的对象，触发编辑器刷新
       setActiveDoc({ ...importedDoc });
-      
       toast({ title: t.importSuccess, description: `${t.importDesc}: ${file.name}` });
       if (fileInputRef.current) fileInputRef.current.value = '';
     };
@@ -150,7 +147,7 @@ export default function MarkEditApp() {
           <div className="flex-1 overflow-hidden">
             {activeDoc ? (
               <MarkEditorMain 
-                key={activeDoc.id} // 增加 key 确保切换文档时组件彻底重置
+                key={activeDoc.id}
                 doc={activeDoc} 
                 onUpdate={refreshDocs} 
                 onDelete={handleDeleteDoc}
