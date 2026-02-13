@@ -28,6 +28,7 @@ export const translations = {
     words: '词',
     storageReady: '本地存储就绪',
     settings: '设置',
+    preferences: '个性化',
     language: '语言',
     theme: '主题',
     themeLight: '浅色',
@@ -40,6 +41,10 @@ export const translations = {
     rephrasing: '正在优化...',
     heroTitle: '灵感，随处记录',
     heroDesc: '专为全生态设计的专业 Markdown 编辑器。',
+    about: '关于',
+    version: '版本',
+    author: '作者',
+    appDescription: 'MarkEdit 是一款专为全生态设计的专业 Markdown 编辑器，支持实时预览、AI 润色、Mermaid 图表及 LaTeX 公式。',
   },
   en: {
     appName: 'MarkEdit',
@@ -69,6 +74,7 @@ export const translations = {
     words: 'Words',
     storageReady: 'Storage Ready',
     settings: 'Settings',
+    preferences: 'Preferences',
     language: 'Language',
     theme: 'Theme',
     themeLight: 'Light',
@@ -81,5 +87,9 @@ export const translations = {
     rephrasing: 'Optimizing...',
     heroTitle: 'Ideas, Anywhere.',
     heroDesc: 'Professional Markdown editor designed for all ecosystems.',
+    about: 'About',
+    version: 'Version',
+    author: 'Author',
+    appDescription: 'MarkEdit is a professional Markdown editor designed for all ecosystems, featuring live preview, AI polishing, Mermaid diagrams, and LaTeX support.',
   }
 };
