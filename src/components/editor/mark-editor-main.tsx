@@ -15,6 +15,7 @@ import {
   Trash2,
   Columns
 } from 'lucide-react';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 import { rephraseSelectedMarkdownText } from '@/ai/flows/rephrase-selected-markdown-text';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -98,10 +99,30 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
     preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight);
   };
 
+  // Typora-like interaction: Toggle tasks from preview
+  const handleToggleTask = (index: number) => {
+    const lines = content.split('\n');
+    let taskCount = 0;
+    const newLines = lines.map(line => {
+      const taskMatch = line.match(/^(\s*- \[)([ xX])(\].*)/);
+      if (taskMatch) {
+        if (taskCount === index) {
+          const newStatus = taskMatch[2] === ' ' ? 'x' : ' ';
+          taskCount++;
+          return `${taskMatch[1]}${newStatus}${taskMatch[3]}`;
+        }
+        taskCount++;
+      }
+      return line;
+    });
+    setContent(newLines.join('\n'));
+  };
+
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden">
       <header className="flex items-center justify-between px-4 py-2 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-30 h-14 shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <SidebarTrigger className="mr-2" />
           {onBack && (
             <Button variant="ghost" size="icon" onClick={onBack} className="md:hidden">
               <ChevronLeft className="w-5 h-5" />
@@ -110,7 +131,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="bg-transparent font-bold text-lg focus:outline-none border-b-2 border-transparent focus:border-primary px-1 transition-all"
+            className="bg-transparent font-bold text-lg focus:outline-none border-b-2 border-transparent focus:border-primary px-1 transition-all max-w-[200px] md:max-w-xs"
             placeholder="Untitled Doc"
           />
         </div>
@@ -168,7 +189,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
         )}>
           {/* Editor Panel */}
           <div className={cn(
-            "h-full overflow-hidden flex flex-col bg-white",
+            "h-full overflow-hidden flex flex-col bg-white relative",
             mode === 'preview' ? "hidden" : "flex"
           )}>
             <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
@@ -190,19 +211,23 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
                 onChange={(e) => setContent(e.target.value)}
                 onScroll={handleScroll}
                 placeholder="Start writing in Markdown..."
-                className="absolute inset-0 resize-none font-code text-base p-6 md:p-8 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none h-full w-full overflow-y-auto"
+                className="absolute inset-0 resize-none font-code text-base p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none h-full w-full overflow-y-auto"
               />
             </div>
           </div>
 
           {/* Preview Panel */}
-          <div className={cn(
-            "h-full overflow-hidden bg-muted/20 border-l transition-all duration-300",
-            mode === 'edit' ? "hidden" : "block",
-            mode === 'preview' ? "border-l-0" : ""
-          )}>
+          <div 
+            className={cn(
+              "h-full overflow-hidden bg-muted/20 border-l transition-all duration-300",
+              mode === 'edit' ? "hidden" : "block",
+              mode === 'preview' ? "border-l-0" : ""
+            )}
+            onDoubleClick={() => mode === 'preview' && setMode('live')}
+            title={mode === 'preview' ? "Double click to edit" : ""}
+          >
             <div className="h-full overflow-y-auto scroll-smooth">
-               <MarkViewer content={content} forwardedRef={previewRef} />
+               <MarkViewer content={content} forwardedRef={previewRef} onToggleTask={handleToggleTask} />
             </div>
           </div>
         </div>
@@ -215,7 +240,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
         </div>
         <div className="flex gap-2 items-center">
           <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-          <span>Cloud Sync Enabled</span>
+          <span>Local Auto-Save</span>
         </div>
       </footer>
     </div>
