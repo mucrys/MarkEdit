@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -14,7 +13,7 @@ import {
   SidebarHeader,
   SidebarInset
 } from '@/components/ui/sidebar';
-import { PanelLeft, Upload } from 'lucide-react';
+import { PanelLeft, Import } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -87,7 +86,7 @@ export default function MarkEditApp() {
                   MarkEdit
                 </span>
                 <label className="cursor-pointer">
-                  <Upload className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
+                  <Import className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" title="Import" />
                   <input type="file" accept=".md" className="hidden" onChange={handleImport} />
                 </label>
              </div>
@@ -130,7 +129,6 @@ export default function MarkEditApp() {
             )}
           </div>
           
-          {/* Mobile floating sidebar trigger if doc active */}
           <div className="fixed bottom-6 left-6 md:hidden z-50">
              <SidebarTrigger className="w-12 h-12 bg-primary text-white rounded-full shadow-2xl hover:bg-primary/90 flex items-center justify-center">
                 <PanelLeft className="w-6 h-6" />

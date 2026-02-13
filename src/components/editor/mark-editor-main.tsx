@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -15,8 +14,7 @@ import {
   ChevronLeft, 
   PanelLeft,
   Trash2,
-  Columns,
-  Maximize2
+  Columns
 } from 'lucide-react';
 import { rephraseSelectedMarkdownText } from '@/ai/flows/rephrase-selected-markdown-text';
 import { useToast } from '@/hooks/use-toast';
@@ -93,7 +91,6 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
     }
   };
 
-  // Sync scrolling logic
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
     if (mode !== 'live' || !previewRef.current || !textareaRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
@@ -104,7 +101,6 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
 
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden">
-      {/* Header Toolbar */}
       <header className="flex items-center justify-between px-4 py-2 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-30 h-14">
         <div className="flex items-center gap-3">
           {onBack && (
@@ -123,7 +119,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
         <div className="flex items-center gap-1 md:gap-2">
           <div className="bg-muted p-1 rounded-lg flex gap-1 mr-2">
             <Button 
-              variant={mode === 'edit' ? 'white' : 'ghost'} 
+              variant={mode === 'edit' ? 'secondary' : 'ghost'} 
               size="sm" 
               onClick={() => setMode('edit')}
               className={cn("h-7 px-3 text-xs", mode === 'edit' && "bg-white shadow-sm")}
@@ -132,7 +128,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
               <span className="hidden sm:inline">Edit</span>
             </Button>
             <Button 
-              variant={mode === 'live' ? 'white' : 'ghost'} 
+              variant={mode === 'live' ? 'secondary' : 'ghost'} 
               size="sm" 
               onClick={() => setMode('live')}
               className={cn("h-7 px-3 text-xs", mode === 'live' && "bg-white shadow-sm")}
@@ -141,7 +137,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
               <span className="hidden sm:inline">Live</span>
             </Button>
             <Button 
-              variant={mode === 'preview' ? 'white' : 'ghost'} 
+              variant={mode === 'preview' ? 'secondary' : 'ghost'} 
               size="sm" 
               onClick={() => setMode('preview')}
               className={cn("h-7 px-3 text-xs", mode === 'preview' && "bg-white shadow-sm")}
@@ -166,13 +162,11 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
         </div>
       </header>
 
-      {/* Main Area */}
       <main className="flex-1 overflow-hidden relative">
         <div className={cn(
           "h-full grid transition-all duration-500 ease-in-out",
           mode === 'live' ? "grid-cols-2" : "grid-cols-1"
         )}>
-          {/* Editor Pane */}
           <div className={cn(
             "h-full overflow-hidden flex flex-col transition-all duration-300",
             mode === 'preview' ? "hidden" : "block",
@@ -202,7 +196,6 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
             </div>
           </div>
 
-          {/* Preview Pane */}
           <div className={cn(
             "h-full overflow-hidden bg-muted/20 transition-all duration-300",
             mode === 'edit' ? "hidden" : "block",
@@ -215,7 +208,6 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
         </div>
       </main>
 
-      {/* Footer / Status */}
       <footer className="px-4 py-1.5 text-[10px] text-muted-foreground bg-white border-t flex justify-between uppercase tracking-widest font-medium">
         <div className="flex gap-4">
           <span>{content.length} characters</span>
