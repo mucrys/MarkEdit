@@ -9,6 +9,10 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: 'MarkEdit',
   },
+  applicationName: 'MarkEdit',
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
@@ -17,6 +21,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
+  themeColor: '#7c3aed', // 使用 primary 颜色作为主题色
 };
 
 export default function RootLayout({
@@ -25,14 +30,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="antialiased">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased selection:bg-accent/30">{children}</body>
+      <body className="font-body antialiased selection:bg-accent/30 bg-background text-foreground">{children}</body>
     </html>
   );
 }
