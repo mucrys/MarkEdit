@@ -20,7 +20,7 @@ if (typeof window !== 'undefined') {
     securityLevel: 'loose',
     fontFamily: 'Inter, sans-serif',
     themeVariables: {
-      // 修改 Mermaid 内部节点样式：白底灰边
+      // 基础节点样式：白底灰边
       primaryColor: '#ffffff',
       primaryTextColor: '#1f2937',
       primaryBorderColor: '#d1d5db',
@@ -33,7 +33,16 @@ if (typeof window !== 'undefined') {
       clusterBkg: '#f3f4f6',
       clusterBorder: '#d1d5db',
       fontSize: '14px',
-    }
+      // 彻底去除连接线上文字（如“是/否”）的背景色，使其透明
+      edgeLabelBackground: 'transparent',
+      tertiaryTextColor: '#4b5563',
+    },
+    flowchart: {
+      htmlLabels: true,
+      curve: 'basis',
+      useMaxWidth: true,
+      padding: 15, // 增加内边距防止文字截断
+    },
   });
 }
 
@@ -47,8 +56,9 @@ const MermaidChart = ({ chart }: { chart: string }) => {
     const renderChart = async () => {
       if (!chart.trim()) return;
       try {
-        const { svg } = await mermaid.render(`render-${containerId}`, chart);
-        if (active) setSvg(svg);
+        // 每次渲染前清理并重新生成
+        const { svg: renderedSvg } = await mermaid.render(`render-${containerId}`, chart);
+        if (active) setSvg(renderedSvg);
       } catch (error) {
         console.error('Mermaid rendering failed:', error);
       }
@@ -59,7 +69,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 
   return (
     <div 
-      className="flex justify-center my-6 w-full overflow-x-auto bg-transparent"
+      className="flex justify-center my-8 w-full overflow-x-auto bg-transparent"
       dangerouslySetInnerHTML={{ __html: svg }} 
     />
   );
@@ -114,7 +124,8 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
               const isMermaid = className.includes('language-mermaid');
               
               if (isMermaid) {
-                return <div className="my-0 p-0 bg-transparent border-none">{children}</div>;
+                // Mermaid 容器彻底透明，无缝嵌入
+                return <div className="my-2 p-0 bg-transparent border-none overflow-visible">{children}</div>;
               }
               
               return (
