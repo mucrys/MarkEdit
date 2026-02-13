@@ -161,7 +161,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
         </div>
       </header>
 
-      <main className="flex-1 overflow-hidden relative">
+      <main className="flex-1 overflow-hidden">
         <div className={cn(
           "h-full grid transition-all duration-300",
           mode === 'live' ? "grid-cols-2" : "grid-cols-1"
