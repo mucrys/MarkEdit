@@ -16,31 +16,13 @@ import 'katex/dist/katex.min.css';
 if (typeof window !== 'undefined') {
   mermaid.initialize({
     startOnLoad: false,
-    theme: 'base',
+    theme: 'default',
     securityLevel: 'loose',
     fontFamily: 'Inter, sans-serif',
-    themeVariables: {
-      primaryColor: '#ffffff',
-      primaryBorderColor: '#d1d5db',
-      primaryTextColor: '#1f2937',
-      nodeBkg: '#ffffff',
-      nodeBorder: '#d1d5db',
-      clusterBkg: '#f9fafb',
-      clusterBorder: '#e5e7eb',
-      lineColor: '#94a3b8',
-      tertiaryColor: '#ffffff',
-      // 彻底移除连线文字背后的背景框
-      edgeLabelBackground: 'transparent',
-      fontSize: '14px',
-    },
     flowchart: {
       htmlLabels: true,
-      curve: 'basis',
       useMaxWidth: true,
-      // 增加足够内边距，防止图框边缘文字被截断
-      padding: 30,
-      nodeSpacing: 50,
-      rankSpacing: 50,
+      curve: 'basis',
     },
   });
 }
@@ -80,7 +62,7 @@ interface MarkViewerProps {
 }
 
 export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerProps) {
-  // 渲染时重置任务索引，确保与源码匹配逻辑一致
+  // 关键：每次渲染重置任务计数器
   let taskIndex = 0;
 
   return (
@@ -88,16 +70,6 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
       ref={forwardedRef}
       className="markdown-preview p-6 md:p-10 w-full bg-white min-h-full overflow-y-auto scroll-smooth"
     >
-      <style jsx global>{`
-        /* 强制覆盖 Mermaid 内部样式，确保连接线标签没有背景 */
-        .edgeLabel rect {
-          fill: transparent !important;
-          stroke: none !important;
-        }
-        .edgeLabel span {
-          background-color: transparent !important;
-        }
-      `}</style>
       <article className="prose prose-neutral max-w-none w-full">
         <ReactMarkdown 
           remarkPlugins={[
@@ -132,7 +104,6 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
               const isMermaid = className.includes('language-mermaid');
               
               if (isMermaid) {
-                // Mermaid 容器保持无缝透明
                 return <div className="my-2 p-0 bg-transparent border-none overflow-visible">{children}</div>;
               }
               

@@ -101,7 +101,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
     preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight);
   };
 
-  // 关键修复：任务列表精准状态翻转逻辑，确保与 MarkViewer 渲染的 taskIndex 严格匹配
+  // 任务列表状态翻转：确保与 MarkViewer 渲染的索引严格 1:1 匹配
   const handleToggleTask = (targetIndex: number) => {
     const lines = content.split('\n');
     let currentTaskCount = 0;
