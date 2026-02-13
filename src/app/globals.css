@@ -70,8 +70,11 @@
 
 .markdown-preview hr { @apply my-8 border-muted; }
 .markdown-preview table { 
-  @apply w-full border-collapse mb-6 overflow-x-auto; 
   display: block;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
 }
 
 @media (min-width: 768px) {
@@ -93,57 +96,71 @@
 ::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/40; }
 
 @media print {
+  /* 强制隐藏所有不需要打印的 UI 元素 */
   [data-sidebar="sidebar"],
   header,
   footer,
   .sidebar-trigger,
+  [data-sidebar="trigger"],
   button,
   .print-hidden,
-  input {
+  input,
+  .fixed,
+  .absolute:not(.prose *),
+  [role="dialog"] {
     display: none !important;
   }
 
-  body, html {
+  /* 重置打印容器 */
+  html, body {
     overflow: visible !important;
     height: auto !important;
     background: white !important;
     color: black !important;
-  }
-
-  .sidebar-inset {
-    display: block !important;
     margin: 0 !important;
     padding: 0 !important;
-    overflow: visible !important;
-    min-height: auto !important;
   }
 
-  main {
+  /* 展开所有祖先容器以显示内容 */
+  .sidebar-provider,
+  .sidebar-inset,
+  main,
+  .flex-1,
+  .grid {
     display: block !important;
     overflow: visible !important;
     height: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
   }
 
+  /* 重点优化预览区 */
   .markdown-preview {
     display: block !important;
     position: static !important;
     width: 100% !important;
     height: auto !important;
     overflow: visible !important;
-    padding: 0 !important;
+    padding: 2cm !important; /* 标准打印页边距 */
     margin: 0 !important;
     background: white !important;
+    visibility: visible !important;
   }
 
-  .prose {
+  article.prose {
     max-width: none !important;
     color: black !important;
+    visibility: visible !important;
   }
 
-  .markdown-preview pre, 
-  .markdown-preview blockquote,
-  .markdown-preview table,
-  .markdown-preview span.block {
+  /* 打印时避免元素分裂 */
+  pre, blockquote, table, figure, .block {
     page-break-inside: avoid;
+  }
+
+  h1, h2, h3 {
+    page-break-after: avoid;
   }
 }

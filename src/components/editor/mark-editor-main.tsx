@@ -75,6 +75,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
   };
 
   const handleExportPdf = () => {
+    // 调用原生打印，CSS media print 会负责 UI 隐藏和布局重置
     window.print();
   };
 
@@ -118,12 +119,10 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
   const showEditor = mode === 'edit' || (mode === 'live' && !actualIsMobile);
   const showPreview = mode === 'preview' || (mode === 'live');
 
-  // Robust scrolling to headings by ID
   const scrollToHeading = (id: string) => {
     const container = previewRef.current;
     if (!container) return;
 
-    // Use querySelector for flexible matching, or getElementById for direct ID matching
     const target = 
       container.querySelector(`[id="${id}"]`) || 
       container.querySelector(`[id="user-content-${id}"]`);
