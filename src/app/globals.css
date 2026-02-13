@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -54,17 +53,17 @@
 .markdown-preview ol { @apply list-decimal pl-6 mb-4 space-y-2; }
 .markdown-preview blockquote { @apply border-l-4 border-primary/40 pl-4 italic my-6 text-muted-foreground bg-muted/10 py-2 rounded-r-lg; }
 
-/* 代码块样式优化 */
+/* 代码块样式优化：更柔和的背景 */
 .markdown-preview pre { 
-  @apply bg-zinc-900 text-zinc-100 p-5 rounded-xl overflow-x-auto my-6 font-code text-sm shadow-xl; 
+  @apply bg-muted/40 text-foreground p-5 rounded-xl overflow-x-auto my-6 font-code text-sm border border-border/50; 
 }
-/* 确保代码块内的 code 标签不应用行内样式 */
+/* 确保代码块内的文字颜色正确 */
 .markdown-preview pre code { 
-  @apply bg-transparent p-0 text-zinc-100 font-code;
-  color: #f4f4f5 !important; /* 强制使用浅灰色文字 */
+  @apply bg-transparent p-0 text-foreground font-code;
+  color: inherit !important;
 }
 
-/* 行内代码样式 */
+/* 行内代码样式：保留紫色高亮效果 */
 .markdown-preview :not(pre) > code { 
   @apply font-code text-[0.85em] bg-accent/20 px-1.5 py-0.5 rounded text-accent-foreground; 
 }
