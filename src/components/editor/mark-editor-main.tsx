@@ -101,25 +101,25 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
     preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight);
   };
 
-  // 关键修复：任务列表精准状态翻转
+  // 关键修复：任务列表精准状态翻转逻辑，确保与 MarkViewer 渲染的 taskIndex 严格匹配
   const handleToggleTask = (targetIndex: number) => {
     const lines = content.split('\n');
-    let currentCheckboxIndex = 0;
+    let currentTaskCount = 0;
     
-    // 匹配 GFM 任务列表：支持缩进、支持 - * + 符号、支持 [ ] [x] [X]
+    // 标准 GFM 任务列表正则表达式
     const taskRegex = /^(\s*[-*+]\s+\[)([ xX])(\].*)/;
 
     const newLines = lines.map(line => {
       if (taskRegex.test(line)) {
-        if (currentCheckboxIndex === targetIndex) {
+        if (currentTaskCount === targetIndex) {
           const updatedLine = line.replace(taskRegex, (match, p1, p2, p3) => {
             const newStatus = (p2 === ' ' || p2 === '') ? 'x' : ' ';
             return `${p1}${newStatus}${p3}`;
           });
-          currentCheckboxIndex++;
+          currentTaskCount++;
           return updatedLine;
         }
-        currentCheckboxIndex++;
+        currentTaskCount++;
       }
       return line;
     });

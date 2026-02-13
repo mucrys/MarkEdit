@@ -16,32 +16,32 @@ import 'katex/dist/katex.min.css';
 if (typeof window !== 'undefined') {
   mermaid.initialize({
     startOnLoad: false,
-    theme: 'default',
+    theme: 'base', // 使用 base 主题以允许完全自定义颜色
     securityLevel: 'loose',
     fontFamily: 'Inter, sans-serif',
     themeVariables: {
+      // 节点基础样式：白底、灰边、黑字
       primaryColor: '#ffffff',
-      primaryTextColor: '#1f2937',
       primaryBorderColor: '#d1d5db',
-      lineColor: '#94a3b8',
-      secondaryColor: '#f9fafb',
-      tertiaryColor: '#ffffff',
-      mainBkg: '#ffffff',
+      primaryTextColor: '#1f2937',
       nodeBkg: '#ffffff',
       nodeBorder: '#d1d5db',
-      clusterBkg: '#f3f4f6',
-      clusterBorder: '#d1d5db',
-      fontSize: '14px',
-      // 关键修复：彻底移除连线文字背景
+      clusterBkg: '#f9fafb',
+      clusterBorder: '#e5e7eb',
+      lineColor: '#94a3b8',
+      tertiaryColor: '#ffffff',
+      // 关键修复：彻底移除连线文字背后的背景框
       edgeLabelBackground: 'transparent',
-      tertiaryTextColor: '#4b5563',
+      fontSize: '14px',
     },
     flowchart: {
       htmlLabels: true,
       curve: 'basis',
       useMaxWidth: true,
-      // 关键修复：增加内边距防止文字截断
-      padding: 20,
+      // 关键修复：增加足够内边距，防止图框边缘文字被截断
+      padding: 30,
+      nodeSpacing: 50,
+      rankSpacing: 50,
     },
   });
 }
@@ -56,6 +56,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
     const renderChart = async () => {
       if (!chart.trim()) return;
       try {
+        // 每次渲染前清理可能残留的错误状态
         const { svg: renderedSvg } = await mermaid.render(`render-${containerId}`, chart);
         if (active) setSvg(renderedSvg);
       } catch (error) {
@@ -81,7 +82,7 @@ interface MarkViewerProps {
 }
 
 export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerProps) {
-  // 渲染时重置任务索引，确保与源码匹配
+  // 渲染时重置任务索引，确保与源码匹配逻辑一致
   let taskIndex = 0;
 
   return (
@@ -123,6 +124,7 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
               const isMermaid = className.includes('language-mermaid');
               
               if (isMermaid) {
+                // Mermaid 容器保持无缝透明
                 return <div className="my-2 p-0 bg-transparent border-none overflow-visible">{children}</div>;
               }
               
