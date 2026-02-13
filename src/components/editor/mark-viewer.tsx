@@ -9,6 +9,8 @@ import rehypeKatex from 'rehype-katex';
 import remarkToc from 'remark-toc';
 import remarkEmoji from 'remark-emoji';
 import mermaid from 'mermaid';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import 'katex/dist/katex.min.css';
 
 // Initialize mermaid
@@ -92,12 +94,14 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
               }
               return <input {...props} />;
             },
-            // Handle pre tags to remove background for mermaid
+            // Handle pre tags to remove background for mermaid or highlighted code
             pre: ({ children }: any) => {
-              const isMermaid = React.isValidElement(children) && 
-                                (children.props as any).className?.includes('language-mermaid');
+              const childProps = (children as any)?.props || {};
+              const className = childProps.className || '';
+              const isMermaid = className.includes('language-mermaid');
+              const hasLang = /language-(\w+)/.test(className);
               
-              if (isMermaid) {
+              if (isMermaid || hasLang) {
                 return <div className="my-0 p-0 bg-transparent border-none shadow-none">{children}</div>;
               }
               
@@ -116,6 +120,27 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
                 return <MermaidChart chart={String(children).replace(/\n$/, '')} />;
               }
 
+              if (!inline && language) {
+                return (
+                  <SyntaxHighlighter
+                    style={oneLight}
+                    language={language}
+                    PreTag="div"
+                    className="rounded-xl my-6 border border-border/50 overflow-hidden"
+                    customStyle={{
+                      margin: 0,
+                      padding: '1.25rem',
+                      fontSize: '0.9rem',
+                      backgroundColor: 'hsl(var(--muted) / 0.2)',
+                      lineHeight: '1.6',
+                    }}
+                    {...props}
+                  >
+                    {String(children).replace(/\n$/, '')}
+                  </SyntaxHighlighter>
+                );
+              }
+
               return (
                 <code className={className} {...props}>
                   {children}
@@ -124,8 +149,6 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
             },
             // Support Mark syntax (==text==) via custom span or just styling
             span: ({ node, className, children, ...props }: any) => {
-              // Note: react-markdown doesn't natively support ==text== as a specific node without extra plugins,
-              // but we can add styles for highlighing if needed.
               return <span className={className} {...props}>{children}</span>;
             }
           }}
