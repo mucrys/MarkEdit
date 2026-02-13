@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -65,10 +66,20 @@
   @apply font-code text-[0.85em] bg-accent/20 px-1.5 py-0.5 rounded text-accent-foreground; 
 }
 
+/* 高亮语法 ==text== 样式 */
+.markdown-preview mark {
+  @apply bg-yellow-200 text-black px-1 rounded;
+}
+
 .markdown-preview hr { @apply my-8 border-muted; }
 .markdown-preview table { @apply w-full border-collapse mb-6 block md:table overflow-x-auto; }
 .markdown-preview th { @apply bg-muted p-2 border border-border font-bold text-left; }
 .markdown-preview td { @apply p-2 border border-border; }
+
+/* LaTeX 公式间距 */
+.katex-display {
+  @apply my-6 overflow-x-auto overflow-y-hidden;
+}
 
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 4px; height: 4px; }

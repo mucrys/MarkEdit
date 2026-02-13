@@ -1,9 +1,15 @@
+
 'use client';
 
-import React, { useEffect, useState, useId, useRef } from 'react';
+import React, { useEffect, useState, useId } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import remarkToc from 'remark-toc';
+import remarkEmoji from 'remark-emoji';
 import mermaid from 'mermaid';
+import 'katex/dist/katex.min.css';
 
 // Initialize mermaid
 if (typeof window !== 'undefined') {
@@ -42,7 +48,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 
   return (
     <div 
-      className="flex justify-center my-4 w-full overflow-x-auto bg-transparent"
+      className="flex justify-center my-4 w-full overflow-x-auto bg-transparent border-none"
       dangerouslySetInnerHTML={{ __html: svg }} 
     />
   );
@@ -64,7 +70,13 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
     >
       <article className="prose prose-neutral max-w-none w-full">
         <ReactMarkdown 
-          remarkPlugins={[remarkGfm]}
+          remarkPlugins={[
+            remarkGfm, 
+            remarkMath, 
+            [remarkToc, { heading: '目录|toc|Table of Contents', tight: true }],
+            remarkEmoji
+          ]}
+          rehypePlugins={[rehypeKatex]}
           components={{
             // Handle checkboxes for task lists
             input: ({ node, ...props }) => {
@@ -109,6 +121,12 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
                   {children}
                 </code>
               );
+            },
+            // Support Mark syntax (==text==) via custom span or just styling
+            span: ({ node, className, children, ...props }: any) => {
+              // Note: react-markdown doesn't natively support ==text== as a specific node without extra plugins,
+              // but we can add styles for highlighing if needed.
+              return <span className={className} {...props}>{children}</span>;
             }
           }}
         >
