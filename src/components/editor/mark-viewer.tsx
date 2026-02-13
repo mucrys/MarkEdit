@@ -13,8 +13,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import 'katex/dist/katex.min.css';
 
+// 恢复到最基础的默认配置，确保字符显示正常
 if (typeof window !== 'undefined') {
-  // 恢复到最基础的默认配置，确保字符显示正常
   mermaid.initialize({
     startOnLoad: false,
     theme: 'default',
@@ -73,27 +73,42 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
           ]}
           rehypePlugins={[rehypeKatex]}
           components={{
+            // 禁用默认 checkbox 渲染，交由 li 统一处理以获得准确行号
             input: ({ node, ...props }) => {
-              if (props.type === 'checkbox') {
-                // 利用 position 信息获取该复选框在源码中的确切行号（1-indexed）
-                const lineIndex = (node as any)?.position?.start?.line - 1;
+              if (props.type === 'checkbox') return null;
+              return <input {...props} />;
+            },
+            li: ({ node, children, checked, ...props }: any) => {
+              // 任务列表项
+              if (checked !== null) {
+                // 利用 MDAST 的 position 信息直接获取该任务项在源码中的起始行号（1-indexed）
+                const lineIndex = node?.position?.start?.line - 1;
                 
                 return (
-                  <input
-                    type="checkbox"
-                    checked={props.checked}
-                    className="cursor-pointer w-4 h-4 mt-1 accent-primary rounded border-muted transition-all"
-                    readOnly
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (typeof lineIndex === 'number' && lineIndex >= 0) {
-                        onToggleTask?.(lineIndex);
-                      }
-                    }}
-                  />
+                  <li 
+                    className="list-none flex items-start gap-2 -ml-6 mb-2 group" 
+                    {...props}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      className="cursor-pointer w-4 h-4 mt-1.5 accent-primary rounded border-muted transition-all shrink-0"
+                      readOnly
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (typeof lineIndex === 'number' && lineIndex >= 0) {
+                          onToggleTask?.(lineIndex);
+                        }
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      {/* 渲染 li 的其余子元素，跳过 remark-gfm 自动生成的第一个 checkbox 子节点 */}
+                      {React.Children.toArray(children).slice(1)}
+                    </div>
+                  </li>
                 );
               }
-              return <input {...props} />;
+              return <li {...props}>{children}</li>;
             },
             pre: ({ children }: any) => {
               const childProps = (children as any)?.props || {};

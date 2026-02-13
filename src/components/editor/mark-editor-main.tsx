@@ -102,27 +102,28 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
   };
 
   /**
-   * 精准切换指定行号的任务状态
-   * @param lineIndex 源码中的行号（0-indexed）
+   * 基于物理行号精准翻转任务状态
+   * @param lineIndex 源码中的物理行号（0-indexed）
    */
   const handleToggleTask = (lineIndex: number) => {
     const lines = content.split('\n');
     const targetLine = lines[lineIndex];
     
-    if (!targetLine) return;
+    if (targetLine === undefined) return;
 
-    // GFM 任务列表正则表达式，支持有序和无序列表
-    const taskRegex = /^(\s*(?:[-*+]|\d+\.)\s+\[)([ xX])(\].*)/;
+    // 标准 GFM 任务列表正则
+    const taskRegex = /^(\s*[-*+]\s+\[)([ xX])(\].*)/;
 
     if (taskRegex.test(targetLine)) {
       lines[lineIndex] = targetLine.replace(taskRegex, (match, p1, p2, p3) => {
-        const newStatus = (p2 === ' ' || p2 === '') ? 'x' : ' ';
+        const isChecked = p2.toLowerCase() === 'x';
+        const newStatus = isChecked ? ' ' : 'x';
         return `${p1}${newStatus}${p3}`;
       });
       
       const newContent = lines.join('\n');
       setContent(newContent);
-      // 即时保存，确保预览同步
+      // 即时保存并通知父组件刷新，确保预览实时同步
       documentStore.save({ ...doc, title, content: newContent });
       onUpdate();
     }
