@@ -10,7 +10,6 @@ import remarkToc from 'remark-toc';
 import remarkEmoji from 'remark-emoji';
 import mermaid from 'mermaid';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-// 改用更稳健的样式导入路径，避免 Turbopack 在 SSR 时的解析问题
 import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import 'katex/dist/katex.min.css';
 
@@ -45,7 +44,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 
   return (
     <div 
-      className="flex justify-center my-4 w-full overflow-x-auto bg-transparent border-none"
+      className="flex justify-center my-6 w-full overflow-x-auto bg-muted/20 border border-border/60 rounded-xl p-6 shadow-sm"
       dangerouslySetInnerHTML={{ __html: svg }} 
     />
   );
@@ -58,6 +57,7 @@ interface MarkViewerProps {
 }
 
 export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerProps) {
+  // 用于追踪渲染过程中的任务列表索引
   let taskIndex = 0;
 
   return (
@@ -81,8 +81,13 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
                 return (
                   <input
                     {...props}
+                    type="checkbox"
                     className="cursor-pointer w-4 h-4 mt-1 accent-primary rounded border-muted transition-all"
-                    onChange={() => onToggleTask?.(currentIndex)}
+                    onChange={(e) => {
+                      // 阻止默认行为，交由父组件处理数据更新
+                      e.preventDefault();
+                      onToggleTask?.(currentIndex);
+                    }}
                   />
                 );
               }
@@ -92,9 +97,8 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
               const childProps = (children as any)?.props || {};
               const className = childProps.className || '';
               const isMermaid = className.includes('language-mermaid');
-              const hasLang = /language-(\w+)/.test(className);
               
-              if (isMermaid || hasLang) {
+              if (isMermaid) {
                 return <div className="my-0 p-0 bg-transparent border-none">{children}</div>;
               }
               

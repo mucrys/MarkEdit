@@ -11,8 +11,6 @@ import {
   Edit3, 
   Save, 
   Sparkles, 
-  Download, 
-  ChevronLeft, 
   Trash2,
   Columns
 } from 'lucide-react';
@@ -36,13 +34,12 @@ import {
 interface MarkEditorMainProps {
   doc: MarkDoc;
   onUpdate: () => void;
-  onBack?: () => void;
   onDelete?: () => void;
 }
 
 type EditorMode = 'edit' | 'preview' | 'live';
 
-export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMainProps) {
+export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps) {
   const [mode, setMode] = useState<EditorMode>('live');
   const [content, setContent] = useState(doc.content);
   const [title, setTitle] = useState(doc.title);
@@ -68,18 +65,6 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
     onUpdate();
   };
 
-  const handleExport = () => {
-    const blob = new Blob([content], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${title.toLowerCase().replace(/\s+/g, '-')}.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   const handleAIRephrase = async () => {
     const textarea = textareaRef.current;
     if (!textarea) return;
@@ -98,6 +83,8 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
       const result = await rephraseSelectedMarkdownText({ text: selectedText });
       const newContent = content.substring(0, start) + result.rephrasedText + content.substring(end);
       setContent(newContent);
+      documentStore.save({ ...doc, title, content: newContent });
+      onUpdate();
       toast({ title: '润色成功', description: 'AI 已完成文本优化。' });
     } catch (error) {
       toast({ title: '错误', description: 'AI 润色失败，请重试。', variant: 'destructive' });
@@ -118,10 +105,12 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
     const lines = content.split('\n');
     let taskCount = 0;
     const newLines = lines.map(line => {
+      // 匹配任务列表语法: - [ ] 或 - [x]
       const taskMatch = line.match(/^(\s*- \[)([ xX])(\].*)/);
       if (taskMatch) {
         if (taskCount === index) {
-          const newStatus = taskMatch[2] === ' ' ? 'x' : ' ';
+          const currentStatus = taskMatch[2];
+          const newStatus = (currentStatus === ' ' || currentStatus === 'X' || currentStatus === 'x') ? (currentStatus === ' ' ? 'x' : ' ') : ' ';
           taskCount++;
           return `${taskMatch[1]}${newStatus}${taskMatch[3]}`;
         }
@@ -129,6 +118,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
       }
       return line;
     });
+    
     const newContent = newLines.join('\n');
     setContent(newContent);
     documentStore.save({ ...doc, title, content: newContent });
@@ -136,8 +126,8 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
   };
 
   const actualIsMobile = mounted && isMobile;
-  const showEditor = mode === 'edit' || mode === 'live';
-  const showPreview = mode === 'preview' || (mode === 'live' && !actualIsMobile);
+  const showEditor = mode === 'edit' || (mode === 'live' && !actualIsMobile);
+  const showPreview = mode === 'preview' || (mode === 'live');
 
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden safe-top safe-bottom">
@@ -213,13 +203,13 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
       <main className="flex-1 overflow-hidden">
         <div className={cn(
           "h-full grid",
-          showEditor && showPreview ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
+          showEditor && showPreview && !actualIsMobile ? "grid-cols-2" : "grid-cols-1"
         )}>
           {/* 编辑面板 */}
           {showEditor && (
             <div className={cn(
               "h-full flex flex-col bg-white overflow-hidden",
-              showPreview && "border-r"
+              showPreview && !actualIsMobile && "border-r"
             )}>
               <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
                 <Button 
@@ -248,7 +238,10 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
 
           {/* 预览面板 */}
           {showPreview && (
-            <div className="h-full overflow-hidden bg-white">
+            <div className={cn(
+              "h-full overflow-hidden bg-white",
+              mode === 'live' && actualIsMobile && "hidden" // 移动端 Live 模式下优先显示编辑器
+            )}>
               <div className="h-full overflow-y-auto scroll-smooth">
                  <MarkViewer content={content} forwardedRef={previewRef} onToggleTask={handleToggleTask} />
               </div>
