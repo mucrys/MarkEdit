@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -18,7 +17,7 @@ import {
   SidebarFooter,
   SidebarInset
 } from '@/components/ui/sidebar';
-import { PanelLeft, Import, FilePlus, Sparkles, Smartphone, Globe, Settings } from 'lucide-react';
+import { Import, FilePlus, Sparkles, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -42,7 +41,6 @@ export default function MarkEditApp() {
     if (docs.length > 0 && !activeDoc) {
       setActiveDoc(docs[0]);
     }
-    // 应用保存的主题
     settingsStore.applyTheme(settings.theme);
     setIsLoaded(true);
   }, []);
@@ -57,7 +55,7 @@ export default function MarkEditApp() {
   };
 
   const handleNewDoc = () => {
-    const newDoc = documentStore.create(t.untitled);
+    const newDoc = documentStore.create(t.untitled, '');
     setDocuments(documentStore.getAll());
     setActiveDoc(newDoc);
   };
@@ -83,10 +81,12 @@ export default function MarkEditApp() {
     reader.onload = (event) => {
       const content = event.target?.result as string;
       const title = file.name.replace('.md', '');
-      const newDoc = documentStore.create(title);
-      documentStore.save({ ...newDoc, content });
-      refreshDocs();
-      setActiveDoc(newDoc);
+      const importedDoc = documentStore.create(title, content);
+      
+      const docs = documentStore.getAll();
+      setDocuments(docs);
+      setActiveDoc(importedDoc);
+      
       toast({ title: t.importSuccess, description: `${t.importDesc}: ${file.name}` });
       if (fileInputRef.current) fileInputRef.current.value = '';
     };

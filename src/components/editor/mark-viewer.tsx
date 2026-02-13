@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useId } from 'react';
@@ -47,7 +46,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 
   return (
     <span 
-      className="flex justify-center my-8 w-full overflow-x-auto bg-transparent select-none"
+      className="flex justify-center my-8 w-full overflow-x-auto bg-transparent select-none block"
       dangerouslySetInnerHTML={{ __html: svg }} 
     />
   );
