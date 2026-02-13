@@ -88,6 +88,16 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
       ref={forwardedRef}
       className="markdown-preview p-6 md:p-10 w-full bg-white min-h-full overflow-y-auto scroll-smooth"
     >
+      <style jsx global>{`
+        /* 强制覆盖 Mermaid 内部样式，确保连接线标签没有背景 */
+        .edgeLabel rect {
+          fill: transparent !important;
+          stroke: none !important;
+        }
+        .edgeLabel span {
+          background-color: transparent !important;
+        }
+      `}</style>
       <article className="prose prose-neutral max-w-none w-full">
         <ReactMarkdown 
           remarkPlugins={[
