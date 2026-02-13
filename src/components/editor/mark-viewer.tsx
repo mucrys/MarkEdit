@@ -172,15 +172,12 @@ export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
             h5: ({ children }) => <h5 id={generateId(children)}>{children}</h5>,
             h6: ({ children }) => <h6 id={generateId(children)}>{children}</h6>,
             pre: ({ children }: any) => {
-              // 彻底消除 pre 中的 div 嵌套风险，改用 span 容器
               return <span className="block">{children}</span>;
             },
             code: ({ node, className, children, ...props }: any) => {
               const match = /language-(\w+)/.exec(className || '');
               const language = match ? match[1] : '';
               
-              // 关键修复：只有当存在明确的语言标识（代码块）或者是 pre 的直接子级时才渲染为 CodeBlock
-              // 这能防止行内代码 (如 `readme`) 被渲染成带标题的代码块
               const isBlockCode = !!match || (node?.position?.start?.line !== node?.position?.end?.line);
 
               if (isBlockCode && language === 'mermaid') {
@@ -195,7 +192,6 @@ export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
                 );
               }
 
-              // 行内代码样式：保持轻量、简洁
               return (
                 <code 
                   className={cn(

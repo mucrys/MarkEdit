@@ -61,28 +61,91 @@
 .markdown-preview ol { @apply list-decimal pl-6 mb-4 space-y-2; }
 .markdown-preview blockquote { @apply border-l-4 border-primary/40 pl-4 italic my-6 text-muted-foreground bg-muted/10 py-2 rounded-r-lg; }
 
-/* 行内代码样式 */
 .markdown-preview :not(pre) > code { 
   @apply font-code text-[0.85em] bg-accent/20 px-1.5 py-0.5 rounded text-accent-foreground; 
 }
 
-/* 高亮语法 ==text== 样式 */
 .markdown-preview mark {
   @apply bg-yellow-200 text-black px-1 rounded;
 }
 
 .markdown-preview hr { @apply my-8 border-muted; }
-.markdown-preview table { @apply w-full border-collapse mb-6 block md:table overflow-x-auto; }
+.markdown-preview table { 
+  @apply w-full border-collapse mb-6 overflow-x-auto; 
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .markdown-preview table {
+    display: table;
+  }
+}
+
 .markdown-preview th { @apply bg-muted p-2 border border-border font-bold text-left; }
 .markdown-preview td { @apply p-2 border border-border; }
 
-/* LaTeX 公式间距 */
 .katex-display {
   @apply my-6 overflow-x-auto overflow-y-hidden;
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { @apply bg-muted-foreground/20 rounded-full; }
 ::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/40; }
+
+/* Print Styles */
+@media print {
+  [data-sidebar="sidebar"],
+  header,
+  footer,
+  .sidebar-trigger,
+  button,
+  .print-hidden,
+  input {
+    display: none !important;
+  }
+
+  body, html {
+    overflow: visible !important;
+    height: auto !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  .sidebar-inset {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    min-height: auto !important;
+  }
+
+  main {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .markdown-preview {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+  }
+
+  .prose {
+    max-width: none !important;
+    color: black !important;
+  }
+
+  .markdown-preview pre, 
+  .markdown-preview blockquote,
+  .markdown-preview table,
+  .markdown-preview span.block {
+    page-break-inside: avoid;
+  }
+}

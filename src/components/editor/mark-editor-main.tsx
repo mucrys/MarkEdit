@@ -15,7 +15,8 @@ import {
   Sparkles, 
   Trash2,
   Columns,
-  ListTree
+  ListTree,
+  Printer
 } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { rephraseSelectedMarkdownText } from '@/ai/flows/rephrase-selected-markdown-text';
@@ -74,6 +75,10 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
     onUpdate();
   };
 
+  const handleExportPdf = () => {
+    window.print();
+  };
+
   const handleAIRephrase = async () => {
     const textarea = textareaRef.current;
     if (!textarea) return;
@@ -116,7 +121,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
 
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden safe-top safe-bottom relative">
-      <header className="flex items-center justify-between px-4 py-2 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-30 h-14 shrink-0">
+      <header className="flex items-center justify-between px-4 py-2 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-30 h-14 shrink-0 print:hidden">
         <div className="flex items-center gap-1 md:gap-2 overflow-hidden">
           <SidebarTrigger className="mr-1" />
           <input
@@ -170,6 +175,10 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
             <ListTree className="w-4 h-4" />
           </Button>
 
+          <Button variant="ghost" size="icon" onClick={handleExportPdf} className="w-9 h-9" title={t.exportPdf}>
+            <Printer className="w-4 h-4" />
+          </Button>
+
           <Button variant="ghost" size="icon" onClick={handleSave} className="text-primary w-9 h-9" title={t.save}>
             <Save className="w-4 h-4" />
           </Button>
@@ -201,45 +210,45 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
           "flex-1 h-full grid",
           showEditor && showPreview && !actualIsMobile ? "grid-cols-2" : "grid-cols-1"
         )}>
-          {showEditor && (
-            <div className={cn(
-              "h-full flex flex-col bg-background overflow-hidden",
-              showPreview && !actualIsMobile && "border-r"
-            )}>
-              <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={handleAIRephrase} 
-                  disabled={isRephrasing}
-                  className="bg-accent/10 border-accent/30 text-accent-foreground rounded-full h-8"
-                >
-                  <Sparkles className={cn("w-3.5 h-3.5 mr-2", isRephrasing && "animate-pulse")} />
-                  {isRephrasing ? t.rephrasing : t.aiRephrase}
-                </Button>
-              </div>
-              <div className="flex-1 relative">
-                <Textarea
-                  ref={textareaRef}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  onScroll={handleScroll}
-                  placeholder={t.startWriting}
-                  style={{ fontSize: `${settings.fontSize}px` }}
-                  className="absolute inset-0 w-full h-full resize-none font-code p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent"
-                />
-              </div>
+          {/* Editor Pane */}
+          <div className={cn(
+            "h-full flex flex-col bg-background overflow-hidden print:hidden",
+            !showEditor && "hidden",
+            showPreview && !actualIsMobile && "border-r"
+          )}>
+            <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={handleAIRephrase} 
+                disabled={isRephrasing}
+                className="bg-accent/10 border-accent/30 text-accent-foreground rounded-full h-8"
+              >
+                <Sparkles className={cn("w-3.5 h-3.5 mr-2", isRephrasing && "animate-pulse")} />
+                {isRephrasing ? t.rephrasing : t.aiRephrase}
+              </Button>
             </div>
-          )}
+            <div className="flex-1 relative">
+              <Textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onScroll={handleScroll}
+                placeholder={t.startWriting}
+                style={{ fontSize: `${settings.fontSize}px` }}
+                className="absolute inset-0 w-full h-full resize-none font-code p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent"
+              />
+            </div>
+          </div>
 
-          {showPreview && (
-            <div className={cn(
-              "h-full bg-background overflow-hidden",
-              mode === 'live' && actualIsMobile && "hidden"
-            )}>
-              <MarkViewer content={content} forwardedRef={previewRef} theme={settings.theme} />
-            </div>
-          )}
+          {/* Preview Pane - Always present in DOM for print support */}
+          <div className={cn(
+            "h-full bg-background overflow-hidden",
+            !showPreview && "hidden print:block",
+            mode === 'live' && actualIsMobile && "hidden"
+          )}>
+            <MarkViewer content={content} forwardedRef={previewRef} theme={settings.theme} />
+          </div>
         </div>
 
         <TocSidebar 
@@ -262,7 +271,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
         />
       </main>
 
-      <footer className="px-4 py-1.5 text-[10px] text-muted-foreground bg-background border-t flex justify-between uppercase tracking-widest font-medium shrink-0 safe-bottom">
+      <footer className="px-4 py-1.5 text-[10px] text-muted-foreground bg-background border-t flex justify-between uppercase tracking-widest font-medium shrink-0 safe-bottom print:hidden">
         <div className="flex gap-4">
           <span>{content.length} {t.characters}</span>
           <span>{content.split(/\s+/).filter(Boolean).length} {t.words}</span>

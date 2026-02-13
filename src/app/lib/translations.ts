@@ -46,6 +46,7 @@ export const translations = {
     version: '版本',
     author: '作者',
     appDescription: 'MarkEdit 是一款专为全生态设计的专业 Markdown 编辑器，支持实时预览、AI 润色、Mermaid 图表及 LaTeX 公式。',
+    exportPdf: '导出 PDF',
   },
   en: {
     appName: 'MarkEdit',
@@ -93,5 +94,6 @@ export const translations = {
     version: 'Version',
     author: 'Author',
     appDescription: 'MarkEdit is a professional Markdown editor designed for all ecosystems, featuring live preview, AI polishing, Mermaid diagrams, and LaTeX support.',
+    exportPdf: 'Export PDF',
   }
 };
