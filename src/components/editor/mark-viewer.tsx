@@ -14,16 +14,12 @@ import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import 'katex/dist/katex.min.css';
 
 if (typeof window !== 'undefined') {
+  // 恢复到最基础的默认配置，确保字符显示正常
   mermaid.initialize({
     startOnLoad: false,
     theme: 'default',
     securityLevel: 'loose',
     fontFamily: 'Inter, sans-serif',
-    flowchart: {
-      htmlLabels: true,
-      useMaxWidth: true,
-      curve: 'basis',
-    },
   });
 }
 
@@ -58,13 +54,10 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 interface MarkViewerProps {
   content: string;
   forwardedRef?: React.RefObject<HTMLDivElement | null>;
-  onToggleTask?: (index: number) => void;
+  onToggleTask?: (lineIndex: number) => void;
 }
 
 export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerProps) {
-  // 关键：每次渲染重置任务计数器
-  let taskIndex = 0;
-
   return (
     <div 
       ref={forwardedRef}
@@ -82,7 +75,9 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
           components={{
             input: ({ node, ...props }) => {
               if (props.type === 'checkbox') {
-                const currentIndex = taskIndex++;
+                // 利用 position 信息获取该复选框在源码中的确切行号（1-indexed）
+                const lineIndex = (node as any)?.position?.start?.line - 1;
+                
                 return (
                   <input
                     type="checkbox"
@@ -91,7 +86,9 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
                     readOnly
                     onClick={(e) => {
                       e.preventDefault();
-                      onToggleTask?.(currentIndex);
+                      if (typeof lineIndex === 'number' && lineIndex >= 0) {
+                        onToggleTask?.(lineIndex);
+                      }
                     }}
                   />
                 );

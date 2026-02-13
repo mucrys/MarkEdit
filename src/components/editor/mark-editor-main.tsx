@@ -101,33 +101,31 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
     preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight);
   };
 
-  // 任务列表状态翻转：确保与 MarkViewer 渲染的索引严格 1:1 匹配
-  const handleToggleTask = (targetIndex: number) => {
+  /**
+   * 精准切换指定行号的任务状态
+   * @param lineIndex 源码中的行号（0-indexed）
+   */
+  const handleToggleTask = (lineIndex: number) => {
     const lines = content.split('\n');
-    let currentTaskCount = 0;
+    const targetLine = lines[lineIndex];
     
-    // 标准 GFM 任务列表正则表达式
-    const taskRegex = /^(\s*[-*+]\s+\[)([ xX])(\].*)/;
+    if (!targetLine) return;
 
-    const newLines = lines.map(line => {
-      if (taskRegex.test(line)) {
-        if (currentTaskCount === targetIndex) {
-          const updatedLine = line.replace(taskRegex, (match, p1, p2, p3) => {
-            const newStatus = (p2 === ' ' || p2 === '') ? 'x' : ' ';
-            return `${p1}${newStatus}${p3}`;
-          });
-          currentTaskCount++;
-          return updatedLine;
-        }
-        currentTaskCount++;
-      }
-      return line;
-    });
-    
-    const newContent = newLines.join('\n');
-    setContent(newContent);
-    documentStore.save({ ...doc, title, content: newContent });
-    onUpdate();
+    // GFM 任务列表正则表达式，支持有序和无序列表
+    const taskRegex = /^(\s*(?:[-*+]|\d+\.)\s+\[)([ xX])(\].*)/;
+
+    if (taskRegex.test(targetLine)) {
+      lines[lineIndex] = targetLine.replace(taskRegex, (match, p1, p2, p3) => {
+        const newStatus = (p2 === ' ' || p2 === '') ? 'x' : ' ';
+        return `${p1}${newStatus}${p3}`;
+      });
+      
+      const newContent = lines.join('\n');
+      setContent(newContent);
+      // 即时保存，确保预览同步
+      documentStore.save({ ...doc, title, content: newContent });
+      onUpdate();
+    }
   };
 
   const actualIsMobile = mounted && isMobile;
