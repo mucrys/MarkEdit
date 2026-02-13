@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -5,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { MarkViewer } from './mark-viewer';
 import { MarkDoc, documentStore } from '@/app/lib/document-store';
+import { AppSettings } from '@/app/lib/settings-store';
+import { translations } from '@/app/lib/translations';
 import { 
   Eye, 
   Edit3, 
@@ -36,11 +39,12 @@ interface MarkEditorMainProps {
   doc: MarkDoc;
   onUpdate: () => void;
   onDelete?: () => void;
+  settings: AppSettings;
 }
 
 type EditorMode = 'edit' | 'preview' | 'live';
 
-export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps) {
+export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditorMainProps) {
   const [mode, setMode] = useState<EditorMode>('live');
   const [content, setContent] = useState(doc.content);
   const [title, setTitle] = useState(doc.title);
@@ -52,6 +56,8 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
   const previewRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  
+  const t = translations[settings.language];
 
   useEffect(() => {
     setMounted(true);
@@ -64,7 +70,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
 
   const handleSave = () => {
     documentStore.save({ ...doc, title, content });
-    toast({ title: '已保存', description: '文档更新成功。' });
+    toast({ title: t.saved, description: t.saveDesc });
     onUpdate();
   };
 
@@ -77,7 +83,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
     const selectedText = content.substring(start, end);
 
     if (!selectedText) {
-      toast({ title: '未选择内容', description: '请选择一段文字进行润色。', variant: 'destructive' });
+      toast({ title: t.rephraseDesc, description: t.rephraseDesc, variant: 'destructive' });
       return;
     }
 
@@ -88,9 +94,9 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
       setContent(newContent);
       documentStore.save({ ...doc, title, content: newContent });
       onUpdate();
-      toast({ title: '润色成功', description: 'AI 已完成文本优化。' });
+      toast({ title: t.aiSuccess, description: t.aiSuccess });
     } catch (error) {
-      toast({ title: '错误', description: 'AI 润色失败，请重试。', variant: 'destructive' });
+      toast({ title: t.aiError, description: t.aiError, variant: 'destructive' });
     } finally {
       setIsRephrasing(false);
     }
@@ -110,14 +116,14 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
 
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden safe-top safe-bottom relative">
-      <header className="flex items-center justify-between px-4 py-2 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-30 h-14 shrink-0">
+      <header className="flex items-center justify-between px-4 py-2 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-30 h-14 shrink-0">
         <div className="flex items-center gap-1 md:gap-2 overflow-hidden">
           <SidebarTrigger className="mr-1" />
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="bg-transparent font-bold text-base md:text-lg focus:outline-none border-b-2 border-transparent focus:border-primary px-1 transition-all flex-1 min-w-0"
-            placeholder="无标题文档"
+            placeholder={t.untitled}
           />
         </div>
 
@@ -127,28 +133,28 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
               variant={mode === 'edit' ? 'secondary' : 'ghost'} 
               size="sm" 
               onClick={() => setMode('edit')}
-              className={cn("h-8 px-3 text-xs", mode === 'edit' && "bg-white shadow-sm")}
+              className={cn("h-8 px-3 text-xs", mode === 'edit' && "bg-background shadow-sm")}
             >
               <Edit3 className="w-3.5 h-3.5 md:mr-1.5" />
-              <span className="hidden md:inline">编辑</span>
+              <span className="hidden md:inline">{t.edit}</span>
             </Button>
             <Button 
               variant={mode === 'live' ? 'secondary' : 'ghost'} 
               size="sm" 
               onClick={() => setMode('live')}
-              className={cn("h-8 px-3 text-xs", mode === 'live' && "bg-white shadow-sm")}
+              className={cn("h-8 px-3 text-xs", mode === 'live' && "bg-background shadow-sm")}
             >
               <Columns className="w-3.5 h-3.5 md:mr-1.5" />
-              <span className="hidden md:inline">实时</span>
+              <span className="hidden md:inline">{t.live}</span>
             </Button>
             <Button 
               variant={mode === 'preview' ? 'secondary' : 'ghost'} 
               size="sm" 
               onClick={() => setMode('preview')}
-              className={cn("h-8 px-3 text-xs", mode === 'preview' && "bg-white shadow-sm")}
+              className={cn("h-8 px-3 text-xs", mode === 'preview' && "bg-background shadow-sm")}
             >
               <Eye className="w-3.5 h-3.5 md:mr-1.5" />
-              <span className="hidden md:inline">预览</span>
+              <span className="hidden md:inline">{t.preview}</span>
             </Button>
           </div>
 
@@ -159,12 +165,12 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
             size="icon" 
             onClick={() => setShowToc(!showToc)}
             className={cn("w-9 h-9", showToc && "text-primary bg-primary/5")}
-            title="查看目录"
+            title={t.toc}
           >
             <ListTree className="w-4 h-4" />
           </Button>
 
-          <Button variant="ghost" size="icon" onClick={handleSave} className="text-primary w-9 h-9">
+          <Button variant="ghost" size="icon" onClick={handleSave} className="text-primary w-9 h-9" title={t.save}>
             <Save className="w-4 h-4" />
           </Button>
           
@@ -177,12 +183,12 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
                </AlertDialogTrigger>
                <AlertDialogContent>
                  <AlertDialogHeader>
-                   <AlertDialogTitle>确认删除？</AlertDialogTitle>
-                   <AlertDialogDescription>此操作不可撤销，该文档将永久从本地存储中移除。</AlertDialogDescription>
+                   <AlertDialogTitle>{t.deleteTitle}</AlertDialogTitle>
+                   <AlertDialogDescription>{t.deleteDesc}</AlertDialogDescription>
                  </AlertDialogHeader>
                  <AlertDialogFooter>
-                   <AlertDialogCancel>取消</AlertDialogCancel>
-                   <AlertDialogAction onClick={onDelete} className="bg-destructive text-white hover:bg-destructive/90">确认删除</AlertDialogAction>
+                   <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
+                   <AlertDialogAction onClick={onDelete} className="bg-destructive text-white hover:bg-destructive/90">{t.confirm}</AlertDialogAction>
                  </AlertDialogFooter>
                </AlertDialogContent>
              </AlertDialog>
@@ -197,7 +203,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
         )}>
           {showEditor && (
             <div className={cn(
-              "h-full flex flex-col bg-white overflow-hidden",
+              "h-full flex flex-col bg-background overflow-hidden",
               showPreview && !actualIsMobile && "border-r"
             )}>
               <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
@@ -209,7 +215,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
                   className="bg-accent/10 border-accent/30 text-accent-foreground rounded-full h-8"
                 >
                   <Sparkles className={cn("w-3.5 h-3.5 mr-2", isRephrasing && "animate-pulse")} />
-                  AI 润色
+                  {isRephrasing ? t.rephrasing : t.aiRephrase}
                 </Button>
               </div>
               <div className="flex-1 relative">
@@ -218,8 +224,9 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   onScroll={handleScroll}
-                  placeholder="开始写作..."
-                  className="absolute inset-0 w-full h-full resize-none font-code text-[15px] p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent"
+                  placeholder={t.startWriting}
+                  style={{ fontSize: `${settings.fontSize}px` }}
+                  className="absolute inset-0 w-full h-full resize-none font-code p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent"
                 />
               </div>
             </div>
@@ -227,19 +234,19 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
 
           {showPreview && (
             <div className={cn(
-              "h-full bg-white overflow-hidden",
+              "h-full bg-background overflow-hidden",
               mode === 'live' && actualIsMobile && "hidden"
             )}>
-              <MarkViewer content={content} forwardedRef={previewRef} />
+              <MarkViewer content={content} forwardedRef={previewRef} theme={settings.theme} />
             </div>
           )}
         </div>
 
-        {/* TOC Sidebar */}
         <TocSidebar 
           content={content} 
           isOpen={showToc} 
           onClose={() => setShowToc(false)}
+          language={settings.language}
           onSelect={(id) => {
             if (!previewRef.current) return;
             const target = previewRef.current.querySelector(`[id="${id}"]`);
@@ -255,14 +262,14 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
         />
       </main>
 
-      <footer className="px-4 py-1.5 text-[10px] text-muted-foreground bg-white border-t flex justify-between uppercase tracking-widest font-medium shrink-0 safe-bottom">
+      <footer className="px-4 py-1.5 text-[10px] text-muted-foreground bg-background border-t flex justify-between uppercase tracking-widest font-medium shrink-0 safe-bottom">
         <div className="flex gap-4">
-          <span>{content.length} 字符</span>
-          <span>{content.split(/\s+/).filter(Boolean).length} 词</span>
+          <span>{content.length} {t.characters}</span>
+          <span>{content.split(/\s+/).filter(Boolean).length} {t.words}</span>
         </div>
         <div className="flex gap-2 items-center">
           <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-          <span>本地存储就绪</span>
+          <span>{t.storageReady}</span>
         </div>
       </footer>
     </div>

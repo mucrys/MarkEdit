@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, useId } from 'react';
@@ -9,9 +10,10 @@ import remarkToc from 'remark-toc';
 import remarkEmoji from 'remark-emoji';
 import mermaid from 'mermaid';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { oneLight, oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Copy, Check } from 'lucide-react';
 import 'katex/dist/katex.min.css';
+import { AppTheme } from '@/app/lib/settings-store';
 
 if (typeof window !== 'undefined') {
   mermaid.initialize({
@@ -50,7 +52,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
   );
 };
 
-const CodeBlock = ({ language, children, ...props }: any) => {
+const CodeBlock = ({ language, children, theme, ...props }: any) => {
   const [copied, setCopied] = useState(false);
   const codeString = String(children).replace(/\n$/, '');
 
@@ -60,6 +62,10 @@ const CodeBlock = ({ language, children, ...props }: any) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const isDark = 
+    theme === 'dark' || 
+    (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
   return (
     <div className="group relative my-6 rounded-xl border border-border/50 bg-muted/10 overflow-hidden">
       <div className="flex items-center justify-between px-4 py-1.5 bg-muted/20 border-b border-border/20">
@@ -68,14 +74,14 @@ const CodeBlock = ({ language, children, ...props }: any) => {
         </span>
         <button 
           onClick={copyToClipboard}
-          className="p-1 rounded-md hover:bg-white transition-all text-muted-foreground hover:text-primary active:scale-90"
-          title="复制代码"
+          className="p-1 rounded-md hover:bg-background transition-all text-muted-foreground hover:text-primary active:scale-90"
+          title="Copy"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
         </button>
       </div>
       <SyntaxHighlighter
-        style={oneLight}
+        style={isDark ? oneDark : oneLight}
         language={language}
         PreTag="div"
         customStyle={{
@@ -96,10 +102,10 @@ const CodeBlock = ({ language, children, ...props }: any) => {
 interface MarkViewerProps {
   content: string;
   forwardedRef?: React.RefObject<HTMLDivElement | null>;
+  theme?: AppTheme;
 }
 
-export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
-  // 辅助函数：将标题文本转换为安全的 ID
+export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
   const generateId = (text: any) => {
     return String(text)
       .toLowerCase()
@@ -112,9 +118,9 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
   return (
     <div 
       ref={forwardedRef}
-      className="markdown-preview p-6 md:p-10 w-full bg-white h-full overflow-y-auto scroll-smooth"
+      className="markdown-preview p-6 md:p-10 w-full bg-background h-full overflow-y-auto scroll-smooth"
     >
-      <article className="prose prose-neutral max-w-none w-full break-words">
+      <article className="prose prose-neutral dark:prose-invert max-w-none w-full break-words">
         <ReactMarkdown 
           remarkPlugins={[
             remarkGfm, 
@@ -177,7 +183,7 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
 
               if (!inline) {
                 return (
-                  <CodeBlock language={language} {...props}>
+                  <CodeBlock language={language} theme={theme} {...props}>
                     {children}
                   </CodeBlock>
                 );

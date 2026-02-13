@@ -1,32 +1,40 @@
+
 'use client';
 
 import React from 'react';
 import { MarkDoc } from '@/app/lib/document-store';
+import { AppLanguage } from '@/app/lib/settings-store';
+import { translations } from '@/app/lib/translations';
 import { Button } from '@/components/ui/button';
 import { Plus, FileText, Search, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { zhCN, enUS } from 'date-fns/locale';
 
 interface FileListProps {
   documents: MarkDoc[];
   activeId?: string;
   onSelect: (doc: MarkDoc) => void;
   onNew: () => void;
+  language?: AppLanguage;
 }
 
-export function FileList({ documents, activeId, onSelect, onNew }: FileListProps) {
+export function FileList({ documents, activeId, onSelect, onNew, language = 'zh' }: FileListProps) {
   const [searchTerm, setSearchTerm] = React.useState('');
+  const t = translations[language];
 
   const filteredDocs = documents
     .filter(doc => doc.title.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => b.updatedAt - a.updatedAt);
 
+  const dateLocale = language === 'zh' ? zhCN : enUS;
+
   return (
     <div className="flex flex-col h-full bg-sidebar">
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold font-headline text-primary">Documents</h2>
-          <Button size="icon" onClick={onNew} className="rounded-full w-9 h-9 shadow-md">
+          <h2 className="text-xl font-bold font-headline text-primary">{t.documents}</h2>
+          <Button size="icon" onClick={onNew} className="rounded-full w-9 h-9 shadow-md" title={t.newDoc}>
             <Plus className="w-5 h-5" />
           </Button>
         </div>
@@ -34,7 +42,7 @@ export function FileList({ documents, activeId, onSelect, onNew }: FileListProps
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <input
-            placeholder="Search docs..."
+            placeholder={t.search}
             className="w-full pl-9 pr-4 py-2.5 text-sm bg-muted/50 border-none rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -46,7 +54,7 @@ export function FileList({ documents, activeId, onSelect, onNew }: FileListProps
         {filteredDocs.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 text-muted-foreground/40 text-sm">
             <FileText className="w-10 h-10 mb-2 opacity-20" />
-            <p>No documents</p>
+            <p>{t.noDocs}</p>
           </div>
         ) : (
           filteredDocs.map((doc) => (
@@ -57,18 +65,18 @@ export function FileList({ documents, activeId, onSelect, onNew }: FileListProps
                 "w-full text-left p-4 rounded-2xl transition-all group flex flex-col gap-1.5 relative overflow-hidden active:scale-[0.98]",
                 activeId === doc.id 
                   ? "bg-primary text-primary-foreground shadow-lg scale-[1.02] z-10" 
-                  : "hover:bg-accent/10 hover:text-primary"
+                  : "hover:bg-accent/10 hover:text-primary dark:hover:bg-accent/20"
               )}
             >
               <span className="font-bold text-sm truncate pr-4">{doc.title}</span>
               <div className="flex items-center gap-3 opacity-70 text-[10px] font-medium">
                  <span className="flex items-center gap-1">
                    <Clock className="w-3 h-3" />
-                   {formatDistanceToNow(doc.updatedAt)} ago
+                   {formatDistanceToNow(doc.updatedAt, { addSuffix: true, locale: dateLocale })}
                  </span>
                  <span className="flex items-center gap-1">
                    <FileText className="w-3 h-3" />
-                   {doc.content.length} chars
+                   {doc.content.length} {t.characters}
                  </span>
               </div>
               {activeId === doc.id && (

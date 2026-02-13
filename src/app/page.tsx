@@ -1,9 +1,13 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { MarkDoc, documentStore } from '@/app/lib/document-store';
+import { settingsStore, AppSettings } from '@/app/lib/settings-store';
+import { translations } from '@/app/lib/translations';
 import { FileList } from '@/components/sidebar/file-list';
 import { MarkEditorMain } from '@/components/editor/mark-editor-main';
+import { SettingsDialog } from '@/components/settings/settings-dialog';
 import { Toaster } from '@/components/ui/toaster';
 import { 
   SidebarProvider, 
@@ -11,9 +15,10 @@ import {
   SidebarContent, 
   SidebarTrigger, 
   SidebarHeader,
+  SidebarFooter,
   SidebarInset
 } from '@/components/ui/sidebar';
-import { PanelLeft, Import, FilePlus, Sparkles, Smartphone, Globe } from 'lucide-react';
+import { PanelLeft, Import, FilePlus, Sparkles, Smartphone, Globe, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -22,10 +27,13 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 export default function MarkEditApp() {
   const [documents, setDocuments] = useState<MarkDoc[]>([]);
   const [activeDoc, setActiveDoc] = useState<MarkDoc | null>(null);
+  const [settings, setSettings] = useState<AppSettings>(settingsStore.get());
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  const t = translations[settings.language];
   const welcomeHero = PlaceHolderImages.find(img => img.id === 'welcome-hero');
 
   useEffect(() => {
@@ -34,6 +42,8 @@ export default function MarkEditApp() {
     if (docs.length > 0 && !activeDoc) {
       setActiveDoc(docs[0]);
     }
+    // 应用保存的主题
+    settingsStore.applyTheme(settings.theme);
     setIsLoaded(true);
   }, []);
 
@@ -47,7 +57,7 @@ export default function MarkEditApp() {
   };
 
   const handleNewDoc = () => {
-    const newDoc = documentStore.create();
+    const newDoc = documentStore.create(t.untitled);
     setDocuments(documentStore.getAll());
     setActiveDoc(newDoc);
   };
@@ -58,7 +68,7 @@ export default function MarkEditApp() {
     const docs = documentStore.getAll();
     setDocuments(docs);
     setActiveDoc(docs.length > 0 ? docs[0] : null);
-    toast({ title: 'Deleted', description: 'Document removed.' });
+    toast({ title: t.deleteTitle, description: t.deleteDesc });
   };
 
   const handleImportTrigger = () => {
@@ -77,10 +87,15 @@ export default function MarkEditApp() {
       documentStore.save({ ...newDoc, content });
       refreshDocs();
       setActiveDoc(newDoc);
-      toast({ title: 'Imported', description: `Successfully imported ${file.name}` });
+      toast({ title: t.importSuccess, description: `${t.importDesc}: ${file.name}` });
       if (fileInputRef.current) fileInputRef.current.value = '';
     };
     reader.readAsText(file);
+  };
+
+  const handleUpdateSettings = (newSettings: AppSettings) => {
+    setSettings(newSettings);
+    settingsStore.save(newSettings);
   };
 
   if (!isLoaded) return null;
@@ -97,13 +112,13 @@ export default function MarkEditApp() {
         />
 
         <Sidebar className="border-r shadow-sm">
-          <SidebarHeader className="border-b bg-white p-4">
+          <SidebarHeader className="border-b bg-sidebar p-4">
              <div className="flex items-center justify-between">
                 <span className="font-bold text-primary flex items-center gap-2 text-xl tracking-tight">
                   <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white text-sm shadow-md shadow-primary/20">M</div>
-                  MarkEdit
+                  {t.appName}
                 </span>
-                <Button variant="ghost" size="icon" onClick={handleImportTrigger} title="Import Markdown">
+                <Button variant="ghost" size="icon" onClick={handleImportTrigger} title={t.import}>
                   <Import className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
                 </Button>
              </div>
@@ -114,8 +129,19 @@ export default function MarkEditApp() {
               activeId={activeDoc?.id} 
               onSelect={setActiveDoc} 
               onNew={handleNewDoc}
+              language={settings.language}
             />
           </SidebarContent>
+          <SidebarFooter className="border-t p-2">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start gap-2" 
+              onClick={() => setShowSettings(true)}
+            >
+              <Settings className="w-4 h-4" />
+              {t.settings}
+            </Button>
+          </SidebarFooter>
         </Sidebar>
 
         <SidebarInset className="flex flex-col h-full overflow-hidden bg-background">
@@ -125,6 +151,7 @@ export default function MarkEditApp() {
                 doc={activeDoc} 
                 onUpdate={refreshDocs} 
                 onDelete={handleDeleteDoc}
+                settings={settings}
               />
             ) : (
               <div className="h-full flex flex-col items-center justify-center p-6 text-center bg-muted/5 overflow-y-auto">
@@ -153,46 +180,22 @@ export default function MarkEditApp() {
                       
                       <div className="space-y-4">
                         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
-                          Your Ideas, Anywhere.
+                          {t.heroTitle}
                         </h1>
                         <p className="text-muted-foreground max-w-lg mx-auto leading-relaxed text-lg">
-                          Professional Markdown editor designed for all ecosystems: Android, HarmonyOS, iOS, and Desktop.
+                          {t.heroDesc}
                         </p>
                       </div>
 
                       <div className="flex flex-wrap gap-4 justify-center pt-4">
                           <Button onClick={handleNewDoc} size="lg" className="shadow-xl px-8 rounded-full h-14 text-base font-semibold transition-all hover:scale-105 active:scale-95">
                             <FilePlus className="mr-2 h-5 w-5" />
-                            Create New Document
+                            {t.newDoc}
                           </Button>
                           <Button variant="outline" size="lg" onClick={handleImportTrigger} className="px-8 rounded-full h-14 text-base bg-white shadow-sm transition-all hover:bg-muted/50">
                             <Import className="mr-2 h-5 w-5" />
-                            Import .md File
+                            {t.import}
                           </Button>
-                      </div>
-                   </div>
-
-                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12">
-                      <div className="p-6 rounded-3xl bg-white border shadow-sm transition-all hover:shadow-md group">
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500 mb-4 group-hover:scale-110 transition-transform">
-                          <Smartphone className="w-6 h-6" />
-                        </div>
-                        <h3 className="font-bold text-lg mb-2">Cross-Platform</h3>
-                        <p className="text-sm text-muted-foreground">Seamless experience on iPad, iPhone, and Android devices.</p>
-                      </div>
-                      <div className="p-6 rounded-3xl bg-white border shadow-sm transition-all hover:shadow-md group">
-                        <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-500 mb-4 group-hover:scale-110 transition-transform">
-                          <Sparkles className="w-6 h-6" />
-                        </div>
-                        <h3 className="font-bold text-lg mb-2">AI-Powered</h3>
-                        <p className="text-sm text-muted-foreground">Improve your writing with real-time AI rephrasing assistance.</p>
-                      </div>
-                      <div className="p-6 rounded-3xl bg-white border shadow-sm transition-all hover:shadow-md group">
-                        <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-green-500 mb-4 group-hover:scale-110 transition-transform">
-                          <Globe className="w-6 h-6" />
-                        </div>
-                        <h3 className="font-bold text-lg mb-2">Web Standard</h3>
-                        <p className="text-sm text-muted-foreground">Built on Next.js for maximum performance and reliability.</p>
                       </div>
                    </div>
                  </div>
@@ -204,6 +207,13 @@ export default function MarkEditApp() {
              <SidebarTrigger className="w-12 h-12 bg-primary text-white rounded-full shadow-2xl hover:bg-primary/90 flex items-center justify-center transition-transform active:scale-95 border-none" />
           </div>
         </SidebarInset>
+
+        <SettingsDialog 
+          open={showSettings} 
+          onOpenChange={setShowSettings} 
+          settings={settings} 
+          onSave={handleUpdateSettings} 
+        />
         <Toaster />
       </div>
     </SidebarProvider>
