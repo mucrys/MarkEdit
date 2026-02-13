@@ -105,12 +105,12 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
     const lines = content.split('\n');
     let taskCount = 0;
     const newLines = lines.map(line => {
-      // 匹配任务列表语法: - [ ] 或 - [x]
-      const taskMatch = line.match(/^(\s*- \[)([ xX])(\].*)/);
+      // 增强正则：匹配任务列表语法 - [ ] 或 - [x]
+      const taskMatch = line.match(/^(\s*[-*+]\s+\[)([ xX])(\].*)/);
       if (taskMatch) {
         if (taskCount === index) {
           const currentStatus = taskMatch[2];
-          const newStatus = (currentStatus === ' ' || currentStatus === 'X' || currentStatus === 'x') ? 'x' : ' ';
+          const newStatus = (currentStatus === ' ') ? 'x' : ' ';
           const updatedLine = `${taskMatch[1]}${newStatus}${taskMatch[3]}`;
           taskCount++;
           return updatedLine;
@@ -122,6 +122,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
     
     const newContent = newLines.join('\n');
     setContent(newContent);
+    // 立即保存到本地存储
     documentStore.save({ ...doc, title, content: newContent });
     onUpdate();
   };

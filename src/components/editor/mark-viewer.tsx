@@ -20,8 +20,18 @@ if (typeof window !== 'undefined') {
     securityLevel: 'loose',
     fontFamily: 'Inter, sans-serif',
     themeVariables: {
-      primaryColor: '#6366f1',
+      // 修改 Mermaid 内部节点样式：白底灰边
+      primaryColor: '#ffffff',
+      primaryTextColor: '#1f2937',
+      primaryBorderColor: '#d1d5db',
       lineColor: '#94a3b8',
+      secondaryColor: '#f9fafb',
+      tertiaryColor: '#ffffff',
+      mainBkg: '#ffffff',
+      nodeBkg: '#ffffff',
+      nodeBorder: '#d1d5db',
+      clusterBkg: '#f3f4f6',
+      clusterBorder: '#d1d5db',
       fontSize: '14px',
     }
   });
@@ -49,7 +59,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 
   return (
     <div 
-      className="flex justify-center my-6 w-full overflow-x-auto bg-white border border-border/50 rounded-xl p-6 shadow-sm"
+      className="flex justify-center my-6 w-full overflow-x-auto bg-transparent"
       dangerouslySetInnerHTML={{ __html: svg }} 
     />
   );
@@ -62,7 +72,7 @@ interface MarkViewerProps {
 }
 
 export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerProps) {
-  // 在渲染函数内部初始化索引，确保每次渲染都从0开始计数
+  // 渲染时重置任务索引
   let taskIndex = 0;
 
   return (
@@ -88,7 +98,9 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
                     type="checkbox"
                     checked={props.checked}
                     className="cursor-pointer w-4 h-4 mt-1 accent-primary rounded border-muted transition-all"
-                    onChange={() => {
+                    readOnly
+                    onClick={(e) => {
+                      e.preventDefault();
                       onToggleTask?.(currentIndex);
                     }}
                   />
@@ -102,7 +114,6 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
               const isMermaid = className.includes('language-mermaid');
               
               if (isMermaid) {
-                // Mermaid 容器保持透明无缝
                 return <div className="my-0 p-0 bg-transparent border-none">{children}</div>;
               }
               
