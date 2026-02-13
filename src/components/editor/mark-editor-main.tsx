@@ -19,6 +19,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { rephraseSelectedMarkdownText } from '@/ai/flows/rephrase-selected-markdown-text';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +48,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
   const [isRephrasing, setIsRephrasing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -131,6 +133,10 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
     onUpdate();
   };
 
+  // Visibility logic
+  const showEditor = mode === 'edit' || (mode === 'live' && !isMobile);
+  const showPreview = mode === 'preview' || (mode === 'live' && !isMobile);
+
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden safe-top safe-bottom">
       <header className="flex items-center justify-between px-4 py-2 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-30 h-14 shrink-0">
@@ -214,18 +220,16 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
         </div>
       </header>
 
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden relative">
         <div className={cn(
           "h-full grid",
-          mode === 'live' ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
+          mode === 'live' && !isMobile ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
         )}>
           {/* Editor Panel */}
-          <div className={cn(
-            "h-full flex flex-col bg-white overflow-hidden",
-            (mode === 'preview' || (mode === 'live' && typeof window !== 'undefined' && window.innerWidth < 768)) ? "hidden" : "flex"
-          )}>
-            <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
-               <Button 
+          {showEditor && (
+            <div className="h-full flex flex-col bg-white overflow-hidden border-r">
+              <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
+                <Button 
                   size="sm" 
                   variant="outline" 
                   onClick={handleAIRephrase} 
@@ -235,33 +239,34 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
                   <Sparkles className={cn("w-3.5 h-3.5 mr-2", isRephrasing && "animate-pulse")} />
                   AI Rephrase
                 </Button>
+              </div>
+              <div className="flex-1 relative">
+                <Textarea
+                  ref={textareaRef}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  onScroll={handleScroll}
+                  placeholder="Start writing..."
+                  className="absolute inset-0 w-full h-full resize-none font-code text-base p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent"
+                />
+              </div>
             </div>
-            <div className="flex-1 overflow-hidden flex flex-col">
-              <Textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                onScroll={handleScroll}
-                placeholder="Start writing..."
-                className="flex-1 w-full resize-none font-code text-base p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent"
-              />
-            </div>
-          </div>
+          )}
 
           {/* Preview Panel */}
-          <div 
-            className={cn(
-              "h-full overflow-hidden bg-white border-l",
-              mode === 'edit' ? "hidden" : "block",
-              mode === 'preview' ? "border-l-0" : "",
-              (mode === 'live' && typeof window !== 'undefined' && window.innerWidth < 768) ? "hidden" : "block"
-            )}
-            onDoubleClick={() => mode === 'preview' && setMode('live')}
-          >
-            <div className="h-full overflow-y-auto scroll-smooth">
-               <MarkViewer content={content} forwardedRef={previewRef} onToggleTask={handleToggleTask} />
+          {showPreview && (
+            <div 
+              className={cn(
+                "h-full overflow-hidden bg-white",
+                mode === 'live' ? "border-l" : ""
+              )}
+              onDoubleClick={() => mode === 'preview' && setMode('live')}
+            >
+              <div className="h-full overflow-y-auto scroll-smooth">
+                 <MarkViewer content={content} forwardedRef={previewRef} onToggleTask={handleToggleTask} />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
 
