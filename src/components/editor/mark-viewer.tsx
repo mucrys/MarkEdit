@@ -105,7 +105,7 @@ interface MarkViewerProps {
   theme?: AppTheme;
 }
 
-// Utility to extract plain text from React children
+// Utility to extract plain text from React children recursively
 const extractText = (node: any): string => {
   if (typeof node === 'string' || typeof node === 'number') {
     return String(node);
@@ -119,14 +119,19 @@ const extractText = (node: any): string => {
   return '';
 };
 
+// Unified slugify function to match TocSidebar
+export const slugify = (text: string): string => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\u4e00-\u9fa5a-z0-9\s-]/g, '') // Keep Chinese, Latin letters, and numbers
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
+
 export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
   const generateId = (children: any) => {
-    return extractText(children)
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+    return slugify(extractText(children));
   };
 
   return (
@@ -190,7 +195,6 @@ export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
             code: ({ node, className, children, ...props }: any) => {
               const match = /language-(\w+)/.exec(className || '');
               const language = match ? match[1] : '';
-              
               const isBlockCode = !!match || (node?.position?.start?.line !== node?.position?.end?.line);
 
               if (isBlockCode && language === 'mermaid') {

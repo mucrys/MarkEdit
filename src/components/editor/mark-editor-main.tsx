@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -118,6 +117,28 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
   const actualIsMobile = mounted && isMobile;
   const showEditor = mode === 'edit' || (mode === 'live' && !actualIsMobile);
   const showPreview = mode === 'preview' || (mode === 'live');
+
+  // Robust scrolling to headings by ID
+  const scrollToHeading = (id: string) => {
+    const container = previewRef.current;
+    if (!container) return;
+
+    // Use querySelector for flexible matching, or getElementById for direct ID matching
+    const target = 
+      container.querySelector(`[id="${id}"]`) || 
+      container.querySelector(`[id="user-content-${id}"]`);
+
+    if (target) {
+      const rect = target.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const scrollOffset = rect.top - containerRect.top + container.scrollTop;
+      
+      container.scrollTo({
+        top: scrollOffset - 20,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden safe-top safe-bottom relative">
@@ -241,7 +262,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
             </div>
           </div>
 
-          {/* Preview Pane - Always present in DOM for print support */}
+          {/* Preview Pane */}
           <div className={cn(
             "h-full bg-background overflow-hidden",
             !showPreview && "hidden print:block",
@@ -256,18 +277,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete, settings }: MarkEditor
           isOpen={showToc} 
           onClose={() => setShowToc(false)}
           language={settings.language}
-          onSelect={(id) => {
-            if (!previewRef.current) return;
-            const target = previewRef.current.querySelector(`[id="${id}"]`);
-            if (target) {
-              const rect = target.getBoundingClientRect();
-              const containerRect = previewRef.current.getBoundingClientRect();
-              previewRef.current.scrollTo({
-                top: rect.top - containerRect.top + previewRef.current.scrollTop - 20,
-                behavior: 'smooth'
-              });
-            }
-          }}
+          onSelect={scrollToHeading}
         />
       </main>
 

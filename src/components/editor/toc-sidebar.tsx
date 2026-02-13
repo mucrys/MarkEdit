@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { X, ChevronRight } from 'lucide-react';
 import { AppLanguage } from '@/app/lib/settings-store';
 import { translations } from '@/app/lib/translations';
+import { slugify } from './mark-viewer';
 
 interface TocItem {
   id: string;
@@ -24,24 +25,23 @@ export function TocSidebar({ content, isOpen, onClose, onSelect, language = 'zh'
   const t = translations[language];
   
   const headings = useMemo(() => {
-    const lines = content.split('\n');
+    // 移除代码块内容，避免误匹配代码块内部的 #
+    const cleanContent = content.replace(/```[\s\S]*?```/g, '');
+    const lines = cleanContent.split('\n');
     const items: TocItem[] = [];
     
     lines.forEach(line => {
       const match = line.match(/^(#{1,6})\s+(.*)$/);
       if (match) {
         const level = match[1].length;
-        const rawText = match[2].trim();
-        // Extract plain text from markdown (remove basic formatting)
+        const rawText = match[2].trim().replace(/\s*#+$/, ''); // 移除结尾的 #
+        // 移除基本的 Markdown 格式化字符，以便提取纯文本
         const text = rawText.replace(/[*_~`]/g, '');
-        const id = text
-          .toLowerCase()
-          .trim()
-          .replace(/[^\w\s-]/g, '')
-          .replace(/[\s_-]+/g, '-')
-          .replace(/^-+|-+$/g, '');
+        const id = slugify(text);
           
-        items.push({ id, text, level });
+        if (id) {
+          items.push({ id, text, level });
+        }
       }
     });
     
