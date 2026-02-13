@@ -105,9 +105,23 @@ interface MarkViewerProps {
   theme?: AppTheme;
 }
 
+// Utility to extract plain text from React children
+const extractText = (node: any): string => {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(extractText).join('');
+  }
+  if (React.isValidElement(node) && node.props && 'children' in node.props) {
+    return extractText(node.props.children);
+  }
+  return '';
+};
+
 export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
-  const generateId = (text: any) => {
-    return String(text)
+  const generateId = (children: any) => {
+    return extractText(children)
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '')

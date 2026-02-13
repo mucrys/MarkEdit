@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo } from 'react';
@@ -32,7 +31,9 @@ export function TocSidebar({ content, isOpen, onClose, onSelect, language = 'zh'
       const match = line.match(/^(#{1,6})\s+(.*)$/);
       if (match) {
         const level = match[1].length;
-        const text = match[2].trim();
+        const rawText = match[2].trim();
+        // Extract plain text from markdown (remove basic formatting)
+        const text = rawText.replace(/[*_~`]/g, '');
         const id = text
           .toLowerCase()
           .trim()
@@ -63,7 +64,7 @@ export function TocSidebar({ content, isOpen, onClose, onSelect, language = 'zh'
       
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
         {headings.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-muted-foreground/40 text-xs italic text-center p-8">
+          <div className="h-full flex flex-col items-center justify-center text-muted-foreground/40 text-sm italic text-center p-8">
             {t.noToc}
           </div>
         ) : (

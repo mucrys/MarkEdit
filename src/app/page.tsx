@@ -50,7 +50,7 @@ export default function MarkEditApp() {
     setDocuments(docs);
     if (activeDoc) {
       const updated = docs.find(d => d.id === activeDoc.id);
-      if (updated) setActiveDoc(updated);
+      if (updated) setActiveDoc({ ...updated }); // Use new reference to force sync
     }
   };
 
@@ -83,9 +83,11 @@ export default function MarkEditApp() {
       const title = file.name.replace('.md', '');
       const importedDoc = documentStore.create(title, content);
       
-      const docs = documentStore.getAll();
-      setDocuments(docs);
-      setActiveDoc(importedDoc);
+      const allDocs = documentStore.getAll();
+      setDocuments(allDocs);
+      
+      // Force refresh by spreading to a new object reference
+      setActiveDoc({ ...importedDoc });
       
       toast({ title: t.importSuccess, description: `${t.importDesc}: ${file.name}` });
       if (fileInputRef.current) fileInputRef.current.value = '';
