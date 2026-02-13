@@ -10,7 +10,7 @@ export interface AppSettings {
 
 const STORAGE_KEY = 'markedit_settings';
 
-const DEFAULT_SETTINGS: AppSettings = {
+export const DEFAULT_SETTINGS: AppSettings = {
   language: 'zh',
   theme: 'system',
   fontSize: 16,
@@ -37,14 +37,17 @@ export const settingsStore = {
   applyTheme: (theme: AppTheme) => {
     if (typeof window === 'undefined') return;
     const root = window.document.documentElement;
+    
     const isDark = 
       theme === 'dark' || 
       (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     
     if (isDark) {
       root.classList.add('dark');
+      root.style.colorScheme = 'dark';
     } else {
       root.classList.remove('dark');
+      root.style.colorScheme = 'light';
     }
   }
 };

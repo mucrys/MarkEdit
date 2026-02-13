@@ -18,9 +18,10 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AppSettings, AppLanguage, AppTheme } from '@/app/lib/settings-store';
+import { Button } from "@/components/ui/button";
+import { AppSettings, AppLanguage, AppTheme, DEFAULT_SETTINGS } from '@/app/lib/settings-store';
 import { translations } from '@/app/lib/translations';
-import { Info, Settings2, Github, User } from 'lucide-react';
+import { Settings2, User, RefreshCcw } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -35,9 +36,13 @@ export function SettingsDialog({ open, onOpenChange, settings, onSave }: Setting
   const t = translations[settings.language];
   const appLogo = PlaceHolderImages.find(img => img.id === 'app-logo');
 
+  const handleResetFontSize = () => {
+    onSave({ ...settings, fontSize: DEFAULT_SETTINGS.fontSize });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden gap-0">
+      <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden gap-0 bg-background border-border">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="flex items-center gap-2">
             <Settings2 className="w-5 h-5 text-primary" />
@@ -50,13 +55,13 @@ export function SettingsDialog({ open, onOpenChange, settings, onSave }: Setting
             <TabsList className="w-full justify-start h-12 bg-transparent p-0 gap-6">
               <TabsTrigger 
                 value="preferences" 
-                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 h-full font-semibold"
+                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 h-full font-semibold text-muted-foreground data-[state=active]:text-foreground"
               >
                 {t.preferences}
               </TabsTrigger>
               <TabsTrigger 
                 value="about" 
-                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 h-full font-semibold"
+                className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 h-full font-semibold text-muted-foreground data-[state=active]:text-foreground"
               >
                 {t.about}
               </TabsTrigger>
@@ -71,7 +76,7 @@ export function SettingsDialog({ open, onOpenChange, settings, onSave }: Setting
                   value={settings.language} 
                   onValueChange={(v: AppLanguage) => onSave({ ...settings, language: v })}
                 >
-                  <SelectTrigger className="bg-muted/50 border-none">
+                  <SelectTrigger className="bg-muted/30 border-none">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -87,7 +92,7 @@ export function SettingsDialog({ open, onOpenChange, settings, onSave }: Setting
                   value={settings.theme} 
                   onValueChange={(v: AppTheme) => onSave({ ...settings, theme: v })}
                 >
-                  <SelectTrigger className="bg-muted/50 border-none">
+                  <SelectTrigger className="bg-muted/30 border-none">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -96,12 +101,26 @@ export function SettingsDialog({ open, onOpenChange, settings, onSave }: Setting
                     <SelectItem value="system">{t.themeSystem}</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-[10px] text-muted-foreground italic px-1">
+                  {settings.theme === 'system' ? '当前模式将随您的系统偏好自动切换' : `当前已固定为${settings.theme === 'dark' ? '深色' : '浅色'}模式`}
+                </p>
               </div>
 
               <div className="grid gap-3">
                 <div className="flex justify-between items-center">
-                  <Label className="text-sm font-semibold">{t.fontSize}</Label>
-                  <span className="text-xs font-mono bg-primary/10 text-primary px-2 py-0.5 rounded">{settings.fontSize}px</span>
+                  <div className="flex items-center gap-2">
+                    <Label className="text-sm font-semibold">{t.fontSize}</Label>
+                    <span className="text-xs font-mono bg-primary/10 text-primary px-2 py-0.5 rounded">{settings.fontSize}px</span>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-7 px-2 text-[10px] gap-1 hover:bg-primary/5 text-muted-foreground hover:text-primary transition-colors"
+                    onClick={handleResetFontSize}
+                  >
+                    <RefreshCcw className="w-3 h-3" />
+                    {t.fontSizeReset}
+                  </Button>
                 </div>
                 <Slider 
                   value={[settings.fontSize]} 
@@ -139,7 +158,7 @@ export function SettingsDialog({ open, onOpenChange, settings, onSave }: Setting
               </div>
 
               <div className="space-y-2 pt-2">
-                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
+                <div className="flex items-center justify-between p-3 bg-muted/20 rounded-xl border border-border/50">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center border shadow-sm">
                       <User className="w-4 h-4 text-primary" />
