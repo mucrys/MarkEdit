@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -14,9 +13,9 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
   return (
     <div 
       ref={forwardedRef}
-      className="markdown-preview p-6 md:p-10 max-w-4xl mx-auto bg-white rounded-xl shadow-sm min-h-full overflow-y-auto scroll-smooth"
+      className="markdown-preview p-6 md:p-10 w-full bg-white shadow-sm min-h-full overflow-y-auto scroll-smooth"
     >
-      <article className="prose prose-neutral max-w-none">
+      <article className="prose prose-neutral max-w-none w-full">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {content}
         </ReactMarkdown>

@@ -172,8 +172,8 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
             mode === 'preview' ? "hidden" : "block",
             mode === 'edit' ? "col-span-1" : ""
           )}>
-            <div className="flex-1 flex flex-col p-4 md:p-6 bg-white">
-              <div className="flex justify-end mb-4">
+            <div className="flex-1 flex flex-col bg-white overflow-hidden">
+              <div className="flex justify-end p-2 border-b bg-muted/5">
                  <Button 
                   size="sm" 
                   variant="outline" 
@@ -191,7 +191,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
                 onChange={(e) => setContent(e.target.value)}
                 onScroll={handleScroll}
                 placeholder="Start writing in Markdown..."
-                className="flex-1 resize-none font-code text-base p-6 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none"
+                className="flex-1 resize-none font-code text-base p-6 md:p-8 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none h-full w-full"
               />
             </div>
           </div>
@@ -201,7 +201,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
             mode === 'edit' ? "hidden" : "block",
             mode === 'preview' ? "col-span-1" : "border-l"
           )}>
-            <div className="h-full overflow-y-auto p-4 md:p-6 scroll-smooth">
+            <div className="h-full overflow-y-auto scroll-smooth">
                <MarkViewer content={content} forwardedRef={previewRef} />
             </div>
           </div>
