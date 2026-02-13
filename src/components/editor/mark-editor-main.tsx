@@ -214,9 +214,9 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
         </div>
       </header>
 
-      <main className="flex-1 overflow-hidden relative">
+      <main className="flex-1 overflow-hidden">
         <div className={cn(
-          "h-full grid transition-all duration-300",
+          "h-full grid",
           mode === 'live' ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
         )}>
           {/* Editor Panel */}
@@ -236,14 +236,14 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
                   AI Rephrase
                 </Button>
             </div>
-            <div className="flex-1 relative">
+            <div className="flex-1 overflow-hidden flex flex-col">
               <Textarea
                 ref={textareaRef}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 onScroll={handleScroll}
                 placeholder="Start writing..."
-                className="absolute inset-0 w-full h-full resize-none font-code text-base p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent overflow-y-auto"
+                className="flex-1 w-full resize-none font-code text-base p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent"
               />
             </div>
           </div>
@@ -251,7 +251,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
           {/* Preview Panel */}
           <div 
             className={cn(
-              "h-full overflow-hidden bg-white border-l transition-all duration-300",
+              "h-full overflow-hidden bg-white border-l",
               mode === 'edit' ? "hidden" : "block",
               mode === 'preview' ? "border-l-0" : "",
               (mode === 'live' && typeof window !== 'undefined' && window.innerWidth < 768) ? "hidden" : "block"

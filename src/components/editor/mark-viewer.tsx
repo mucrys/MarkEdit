@@ -19,18 +19,15 @@ const MermaidChart = ({ chart }: { chart: string }) => {
   const [svg, setSvg] = useState<string>('');
   const id = useId().replace(/:/g, '');
   const containerId = `mermaid-svg-${id}`;
-  const isRendered = useRef(false);
 
   useEffect(() => {
     let active = true;
     
     const renderChart = async () => {
+      if (!chart.trim()) return;
       try {
-        // Clear previous state to ensure re-render
-        if (active) {
-          const { svg } = await mermaid.render(`render-${containerId}`, chart);
-          if (active) setSvg(svg);
-        }
+        const { svg } = await mermaid.render(`render-${containerId}`, chart);
+        if (active) setSvg(svg);
       } catch (error) {
         console.error('Mermaid rendering failed:', error);
       }
@@ -45,7 +42,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 
   return (
     <div 
-      className="flex justify-center my-8 w-full overflow-x-auto"
+      className="flex justify-center my-4 w-full overflow-x-auto bg-transparent"
       dangerouslySetInnerHTML={{ __html: svg }} 
     />
   );
