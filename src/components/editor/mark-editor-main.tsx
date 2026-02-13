@@ -110,9 +110,10 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
       if (taskMatch) {
         if (taskCount === index) {
           const currentStatus = taskMatch[2];
-          const newStatus = (currentStatus === ' ' || currentStatus === 'X' || currentStatus === 'x') ? (currentStatus === ' ' ? 'x' : ' ') : ' ';
+          const newStatus = (currentStatus === ' ' || currentStatus === 'X' || currentStatus === 'x') ? 'x' : ' ';
+          const updatedLine = `${taskMatch[1]}${newStatus}${taskMatch[3]}`;
           taskCount++;
-          return `${taskMatch[1]}${newStatus}${taskMatch[3]}`;
+          return updatedLine;
         }
         taskCount++;
       }
@@ -205,7 +206,6 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
           "h-full grid",
           showEditor && showPreview && !actualIsMobile ? "grid-cols-2" : "grid-cols-1"
         )}>
-          {/* 编辑面板 */}
           {showEditor && (
             <div className={cn(
               "h-full flex flex-col bg-white overflow-hidden",
@@ -236,11 +236,10 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
             </div>
           )}
 
-          {/* 预览面板 */}
           {showPreview && (
             <div className={cn(
               "h-full overflow-hidden bg-white",
-              mode === 'live' && actualIsMobile && "hidden" // 移动端 Live 模式下优先显示编辑器
+              mode === 'live' && actualIsMobile && "hidden"
             )}>
               <div className="h-full overflow-y-auto scroll-smooth">
                  <MarkViewer content={content} forwardedRef={previewRef} onToggleTask={handleToggleTask} />

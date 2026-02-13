@@ -19,6 +19,11 @@ if (typeof window !== 'undefined') {
     theme: 'default',
     securityLevel: 'loose',
     fontFamily: 'Inter, sans-serif',
+    themeVariables: {
+      primaryColor: '#6366f1',
+      lineColor: '#94a3b8',
+      fontSize: '14px',
+    }
   });
 }
 
@@ -44,7 +49,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 
   return (
     <div 
-      className="flex justify-center my-6 w-full overflow-x-auto bg-muted/20 border border-border/60 rounded-xl p-6 shadow-sm"
+      className="flex justify-center my-6 w-full overflow-x-auto bg-white border border-border/50 rounded-xl p-6 shadow-sm"
       dangerouslySetInnerHTML={{ __html: svg }} 
     />
   );
@@ -57,7 +62,7 @@ interface MarkViewerProps {
 }
 
 export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerProps) {
-  // 用于追踪渲染过程中的任务列表索引
+  // 在渲染函数内部初始化索引，确保每次渲染都从0开始计数
   let taskIndex = 0;
 
   return (
@@ -80,12 +85,10 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
                 const currentIndex = taskIndex++;
                 return (
                   <input
-                    {...props}
                     type="checkbox"
+                    checked={props.checked}
                     className="cursor-pointer w-4 h-4 mt-1 accent-primary rounded border-muted transition-all"
-                    onChange={(e) => {
-                      // 阻止默认行为，交由父组件处理数据更新
-                      e.preventDefault();
+                    onChange={() => {
                       onToggleTask?.(currentIndex);
                     }}
                   />
@@ -99,6 +102,7 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
               const isMermaid = className.includes('language-mermaid');
               
               if (isMermaid) {
+                // Mermaid 容器保持透明无缝
                 return <div className="my-0 p-0 bg-transparent border-none">{children}</div>;
               }
               
