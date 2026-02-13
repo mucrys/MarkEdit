@@ -99,7 +99,6 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
     preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight);
   };
 
-  // Typora-like interaction: Toggle tasks from preview
   const handleToggleTask = (index: number) => {
     const lines = content.split('\n');
     let taskCount = 0;
@@ -119,10 +118,10 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
   };
 
   return (
-    <div className="flex flex-col h-full bg-background overflow-hidden">
+    <div className="flex flex-col h-full bg-background overflow-hidden safe-top safe-bottom">
       <header className="flex items-center justify-between px-4 py-2 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-30 h-14 shrink-0">
-        <div className="flex items-center gap-2">
-          <SidebarTrigger className="mr-2" />
+        <div className="flex items-center gap-1 md:gap-2 overflow-hidden">
+          <SidebarTrigger className="mr-1" />
           {onBack && (
             <Button variant="ghost" size="icon" onClick={onBack} className="md:hidden">
               <ChevronLeft className="w-5 h-5" />
@@ -131,66 +130,66 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="bg-transparent font-bold text-lg focus:outline-none border-b-2 border-transparent focus:border-primary px-1 transition-all max-w-[200px] md:max-w-xs"
-            placeholder="Untitled Doc"
+            className="bg-transparent font-bold text-base md:text-lg focus:outline-none border-b-2 border-transparent focus:border-primary px-1 transition-all flex-1 min-w-0"
+            placeholder="Untitled"
           />
         </div>
 
-        <div className="flex items-center gap-1 md:gap-2">
-          <div className="bg-muted p-1 rounded-lg flex gap-1 mr-2">
+        <div className="flex items-center gap-1">
+          <div className="bg-muted p-0.5 md:p-1 rounded-lg flex gap-0.5">
             <Button 
               variant={mode === 'edit' ? 'secondary' : 'ghost'} 
               size="sm" 
               onClick={() => setMode('edit')}
-              className={cn("h-7 px-3 text-xs", mode === 'edit' && "bg-white shadow-sm")}
+              className={cn("h-8 px-2 md:px-3 text-xs", mode === 'edit' && "bg-white shadow-sm")}
             >
-              <Edit3 className="w-3.5 h-3.5 mr-1.5" />
-              <span className="hidden sm:inline">Edit</span>
+              <Edit3 className="w-3.5 h-3.5 md:mr-1.5" />
+              <span className="hidden md:inline">Edit</span>
             </Button>
             <Button 
               variant={mode === 'live' ? 'secondary' : 'ghost'} 
               size="sm" 
               onClick={() => setMode('live')}
-              className={cn("h-7 px-3 text-xs", mode === 'live' && "bg-white shadow-sm")}
+              className={cn("h-8 px-2 md:px-3 text-xs", mode === 'live' && "bg-white shadow-sm")}
             >
-              <Columns className="w-3.5 h-3.5 mr-1.5" />
-              <span className="hidden sm:inline">Live</span>
+              <Columns className="w-3.5 h-3.5 md:mr-1.5" />
+              <span className="hidden md:inline">Live</span>
             </Button>
             <Button 
               variant={mode === 'preview' ? 'secondary' : 'ghost'} 
               size="sm" 
               onClick={() => setMode('preview')}
-              className={cn("h-7 px-3 text-xs", mode === 'preview' && "bg-white shadow-sm")}
+              className={cn("h-8 px-2 md:px-3 text-xs", mode === 'preview' && "bg-white shadow-sm")}
             >
-              <Eye className="w-3.5 h-3.5 mr-1.5" />
-              <span className="hidden sm:inline">View</span>
+              <Eye className="w-3.5 h-3.5 md:mr-1.5" />
+              <span className="hidden md:inline">View</span>
             </Button>
           </div>
 
-          <div className="w-px h-4 bg-border mx-1" />
-          <Button variant="ghost" size="icon" onClick={handleSave} title="Save" className="text-primary">
+          <div className="hidden md:block w-px h-4 bg-border mx-1" />
+          <Button variant="ghost" size="icon" onClick={handleSave} title="Save" className="text-primary w-8 h-8 md:w-10 md:h-10">
             <Save className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={handleExport} title="Export">
+          <Button variant="ghost" size="icon" onClick={handleExport} title="Export" className="w-8 h-8 md:w-10 md:h-10">
             <Download className="w-4 h-4" />
           </Button>
           {onDelete && (
-             <Button variant="ghost" size="icon" onClick={onDelete} className="text-destructive hover:text-destructive hover:bg-destructive/10">
+             <Button variant="ghost" size="icon" onClick={onDelete} className="text-destructive hover:text-destructive hover:bg-destructive/10 w-8 h-8 md:w-10 md:h-10">
                <Trash2 className="w-4 h-4" />
              </Button>
           )}
         </div>
       </header>
 
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden relative">
         <div className={cn(
           "h-full grid transition-all duration-300",
-          mode === 'live' ? "grid-cols-2" : "grid-cols-1"
+          mode === 'live' ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
         )}>
           {/* Editor Panel */}
           <div className={cn(
             "h-full overflow-hidden flex flex-col bg-white relative",
-            mode === 'preview' ? "hidden" : "flex"
+            (mode === 'preview' || (mode === 'live' && typeof window !== 'undefined' && window.innerWidth < 768)) ? "hidden" : "flex"
           )}>
             <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
                <Button 
@@ -198,7 +197,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
                   variant="outline" 
                   onClick={handleAIRephrase} 
                   disabled={isRephrasing}
-                  className="bg-accent/10 border-accent/30 text-accent-foreground hover:bg-accent/20 rounded-full h-8"
+                  className="bg-accent/10 border-accent/30 text-accent-foreground hover:bg-accent/20 rounded-full h-8 px-4"
                 >
                   <Sparkles className={cn("w-3.5 h-3.5 mr-2", isRephrasing && "animate-pulse")} />
                   AI Rephrase
@@ -210,8 +209,8 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 onScroll={handleScroll}
-                placeholder="Start writing in Markdown..."
-                className="absolute inset-0 resize-none font-code text-base p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none h-full w-full overflow-y-auto"
+                placeholder="Start writing..."
+                className="absolute inset-0 resize-none font-code text-base p-4 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none h-full w-full overflow-y-auto"
               />
             </div>
           </div>
@@ -221,26 +220,38 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
             className={cn(
               "h-full overflow-hidden bg-muted/20 border-l transition-all duration-300",
               mode === 'edit' ? "hidden" : "block",
-              mode === 'preview' ? "border-l-0" : ""
+              mode === 'preview' ? "border-l-0" : "",
+              (mode === 'live' && typeof window !== 'undefined' && window.innerWidth < 768) ? "hidden" : "block"
             )}
             onDoubleClick={() => mode === 'preview' && setMode('live')}
-            title={mode === 'preview' ? "Double click to edit" : ""}
           >
             <div className="h-full overflow-y-auto scroll-smooth">
                <MarkViewer content={content} forwardedRef={previewRef} onToggleTask={handleToggleTask} />
             </div>
           </div>
+
+          {/* Fallback for Live mode on very small screens if both hidden */}
+          {mode === 'live' && typeof window !== 'undefined' && window.innerWidth < 768 && (
+            <div className="h-full flex flex-col items-center justify-center p-6 text-center text-muted-foreground bg-white">
+              <Columns className="w-12 h-12 mb-4 opacity-20" />
+              <p className="text-sm">Split screen (Live mode) is optimized for larger displays. Please use Edit or View mode on this device.</p>
+              <div className="flex gap-2 mt-6">
+                <Button variant="outline" size="sm" onClick={() => setMode('edit')}>Switch to Edit</Button>
+                <Button variant="outline" size="sm" onClick={() => setMode('preview')}>Switch to View</Button>
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
-      <footer className="px-4 py-1.5 text-[10px] text-muted-foreground bg-white border-t flex justify-between uppercase tracking-widest font-medium shrink-0">
-        <div className="flex gap-4">
-          <span>{content.length} characters</span>
-          <span>{content.split(/\s+/).filter(Boolean).length} words</span>
+      <footer className="px-4 py-1.5 text-[9px] md:text-[10px] text-muted-foreground bg-white border-t flex justify-between uppercase tracking-widest font-medium shrink-0 safe-bottom">
+        <div className="flex gap-2 md:gap-4">
+          <span>{content.length} CHARS</span>
+          <span className="hidden xs:inline">{content.split(/\s+/).filter(Boolean).length} WORDS</span>
         </div>
         <div className="flex gap-2 items-center">
           <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-          <span>Local Auto-Save</span>
+          <span>Auto-Save</span>
         </div>
       </footer>
     </div>
