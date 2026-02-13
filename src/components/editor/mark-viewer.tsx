@@ -10,10 +10,10 @@ import remarkToc from 'remark-toc';
 import remarkEmoji from 'remark-emoji';
 import mermaid from 'mermaid';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+// 改用更稳健的样式导入路径，避免 Turbopack 在 SSR 时的解析问题
+import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import 'katex/dist/katex.min.css';
 
-// Initialize mermaid
 if (typeof window !== 'undefined') {
   mermaid.initialize({
     startOnLoad: false,
@@ -30,7 +30,6 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 
   useEffect(() => {
     let active = true;
-    
     const renderChart = async () => {
       if (!chart.trim()) return;
       try {
@@ -40,12 +39,8 @@ const MermaidChart = ({ chart }: { chart: string }) => {
         console.error('Mermaid rendering failed:', error);
       }
     };
-
     renderChart();
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [chart, containerId]);
 
   return (
@@ -80,7 +75,6 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
           ]}
           rehypePlugins={[rehypeKatex]}
           components={{
-            // Handle checkboxes for task lists
             input: ({ node, ...props }) => {
               if (props.type === 'checkbox') {
                 const currentIndex = taskIndex++;
@@ -94,7 +88,6 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
               }
               return <input {...props} />;
             },
-            // Handle pre tags to remove background for mermaid or highlighted code
             pre: ({ children }: any) => {
               const childProps = (children as any)?.props || {};
               const className = childProps.className || '';
@@ -102,7 +95,7 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
               const hasLang = /language-(\w+)/.test(className);
               
               if (isMermaid || hasLang) {
-                return <div className="my-0 p-0 bg-transparent border-none shadow-none">{children}</div>;
+                return <div className="my-0 p-0 bg-transparent border-none">{children}</div>;
               }
               
               return (
@@ -111,7 +104,6 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
                 </pre>
               );
             },
-            // Handle code blocks specially
             code: ({ node, inline, className, children, ...props }: any) => {
               const match = /language-(\w+)/.exec(className || '');
               const language = match ? match[1] : '';
@@ -131,7 +123,7 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
                       margin: 0,
                       padding: '1.25rem',
                       fontSize: '0.9rem',
-                      backgroundColor: 'hsl(var(--muted) / 0.2)',
+                      backgroundColor: 'hsl(var(--muted) / 0.1)',
                       lineHeight: '1.6',
                     }}
                     {...props}
@@ -146,10 +138,6 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
                   {children}
                 </code>
               );
-            },
-            // Support Mark syntax (==text==) via custom span or just styling
-            span: ({ node, className, children, ...props }: any) => {
-              return <span className={className} {...props}>{children}</span>;
             }
           }}
         >
