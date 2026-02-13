@@ -14,6 +14,7 @@ import { oneLight, oneDark } from 'react-syntax-highlighter/dist/cjs/styles/pris
 import { Copy, Check } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import { AppTheme } from '@/app/lib/settings-store';
+import { cn } from '@/lib/utils';
 
 if (typeof window !== 'undefined') {
   mermaid.initialize({
@@ -67,17 +68,16 @@ const CodeBlock = ({ language, children, theme, ...props }: any) => {
     (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return (
-    <div className="group relative my-6 rounded-xl border border-border/50 bg-muted/10 overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-1.5 bg-muted/20 border-b border-border/20">
+    <div className="group relative my-6 rounded-lg border border-border/50 bg-muted/20 overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-1 bg-muted/30 border-b border-border/10">
         <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
           {language || 'text'}
         </span>
         <button 
           onClick={copyToClipboard}
-          className="p-1 rounded-md hover:bg-background transition-all text-muted-foreground hover:text-primary active:scale-90"
-          title="Copy"
+          className="p-1 rounded hover:bg-background transition-all text-muted-foreground hover:text-primary active:scale-90"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
         </button>
       </div>
       <SyntaxHighlighter
@@ -86,8 +86,8 @@ const CodeBlock = ({ language, children, theme, ...props }: any) => {
         PreTag="div"
         customStyle={{
           margin: 0,
-          padding: '1.25rem',
-          fontSize: '0.85rem',
+          padding: '1rem',
+          fontSize: '0.875rem',
           backgroundColor: 'transparent',
           lineHeight: '1.6',
         }}
@@ -138,19 +138,21 @@ export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
                     {...props} 
                     className="text-primary hover:underline cursor-pointer"
                     onClick={(e) => {
+                      // 关键修复：拦截默认锚点跳转，防止全局视窗滚动
                       e.preventDefault();
                       const targetId = decodeURIComponent(href.slice(1));
                       const container = forwardedRef?.current;
                       if (!container) return;
 
+                      // 在预览容器内部寻找目标元素
                       const targetElement = 
-                        document.getElementById(targetId) || 
-                        container.querySelector(`[id="${targetId}"]`) ||
+                        container.querySelector(`[id="${targetId}"]`) || 
                         container.querySelector(`[id="user-content-${targetId}"]`);
 
                       if (targetElement) {
                         const containerRect = container.getBoundingClientRect();
                         const targetRect = targetElement.getBoundingClientRect();
+                        // 计算相对于容器的偏移
                         const relativeTop = targetRect.top - containerRect.top + container.scrollTop;
                         
                         container.scrollTo({

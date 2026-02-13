@@ -8,7 +8,6 @@ export interface MarkDoc {
 
 const STORAGE_KEY = 'markedit_documents';
 
-// 使用数组 Join 方式定义，彻底避免模板字符串中反引号转义带来的解析错误
 const TEST_MARKDOWN = [
   "# MarkEdit 全生态功能测试",
   "",
@@ -41,8 +40,7 @@ const TEST_MARKDOWN = [
   "## 4. 任务列表",
   "- [x] 集成 Mermaid 流程图",
   "- [x] 支持 LaTeX 数学公式",
-  "- [ ] 开发 Android/HarmonyOS 原生外壳",
-  "- [ ] 实现多端同步",
+  "- [ ] 开发多端同步",
   "",
   "## 5. 其他高级语法",
   "这是一个脚注引用[^1]。我们可以加点表情：:rocket: :heart: :fire:",
@@ -59,7 +57,20 @@ export const documentStore = {
   getAll: (): MarkDoc[] => {
     if (typeof window === 'undefined') return [];
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return [];
+    
+    // 如果是首次运行（stored 为 null），则初始化演示文档
+    if (stored === null) {
+      const initialDoc: MarkDoc = {
+        id: crypto.randomUUID(),
+        title: '欢迎使用 MarkEdit',
+        content: TEST_MARKDOWN,
+        updatedAt: Date.now(),
+      };
+      const initialDocs = [initialDoc];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(initialDocs));
+      return initialDocs;
+    }
+
     try {
       return JSON.parse(stored);
     } catch (e) {
@@ -85,11 +96,11 @@ export const documentStore = {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
   },
 
-  create: (title: string = '新文档'): MarkDoc => {
+  create: (title: string = '新文档', content: string = ''): MarkDoc => {
     const newDoc: MarkDoc = {
       id: crypto.randomUUID(),
       title,
-      content: TEST_MARKDOWN,
+      content,
       updatedAt: Date.now(),
     };
     documentStore.save(newDoc);
