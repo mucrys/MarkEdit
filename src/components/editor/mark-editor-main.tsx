@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -46,10 +47,15 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
   const [content, setContent] = useState(doc.content);
   const [title, setTitle] = useState(doc.title);
   const [isRephrasing, setIsRephrasing] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     setContent(doc.content);
@@ -105,7 +111,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
   };
 
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
-    if (mode !== 'live' || !previewRef.current || !textareaRef.current) return;
+    if (mode !== 'live' || !previewRef.current || !textareaRef.current || isMobile) return;
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
     const ratio = scrollTop / (scrollHeight - clientHeight);
     const preview = previewRef.current;
@@ -134,8 +140,10 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
   };
 
   // Visibility logic
-  const showEditor = mode === 'edit' || (mode === 'live' && !isMobile);
-  const showPreview = mode === 'preview' || (mode === 'live' && !isMobile);
+  // On mobile, 'live' defaults to editor view only to save space
+  const actualIsMobile = mounted && isMobile;
+  const showEditor = mode === 'edit' || mode === 'live';
+  const showPreview = mode === 'preview' || (mode === 'live' && !actualIsMobile);
 
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden safe-top safe-bottom">
@@ -223,11 +231,14 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
       <main className="flex-1 overflow-hidden relative">
         <div className={cn(
           "h-full grid",
-          mode === 'live' && !isMobile ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
+          mode === 'live' && !actualIsMobile ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
         )}>
           {/* Editor Panel */}
           {showEditor && (
-            <div className="h-full flex flex-col bg-white overflow-hidden border-r">
+            <div className={cn(
+              "h-full flex flex-col bg-white overflow-hidden border-r",
+              mode === 'preview' ? "hidden" : "flex"
+            )}>
               <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
                 <Button 
                   size="sm" 
@@ -258,7 +269,8 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
             <div 
               className={cn(
                 "h-full overflow-hidden bg-white",
-                mode === 'live' ? "border-l" : ""
+                mode === 'live' ? "border-l" : "",
+                mode === 'edit' ? "hidden" : "block"
               )}
               onDoubleClick={() => mode === 'preview' && setMode('live')}
             >
