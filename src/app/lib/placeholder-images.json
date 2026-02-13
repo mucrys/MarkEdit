@@ -1,0 +1,17 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "app-logo",
+      "description": "Minimalist purple markdown logo",
+      "imageUrl": "https://picsum.photos/seed/markedit-logo/200/200",
+      "imageHint": "markdown logo"
+    },
+    {
+      "id": "welcome-hero",
+      "description": "Clean writing workspace",
+      "imageUrl": "https://picsum.photos/seed/workspace/1200/600",
+      "imageHint": "minimalist workspace"
+    }
+  ]
+}
