@@ -101,34 +101,6 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
     preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight);
   };
 
-  /**
-   * 基于物理行号精准翻转任务状态
-   * @param lineIndex 源码中的物理行号（0-indexed）
-   */
-  const handleToggleTask = (lineIndex: number) => {
-    const lines = content.split('\n');
-    const targetLine = lines[lineIndex];
-    
-    if (targetLine === undefined) return;
-
-    // 标准 GFM 任务列表正则
-    const taskRegex = /^(\s*[-*+]\s+\[)([ xX])(\].*)/;
-
-    if (taskRegex.test(targetLine)) {
-      lines[lineIndex] = targetLine.replace(taskRegex, (match, p1, p2, p3) => {
-        const isChecked = p2.toLowerCase() === 'x';
-        const newStatus = isChecked ? ' ' : 'x';
-        return `${p1}${newStatus}${p3}`;
-      });
-      
-      const newContent = lines.join('\n');
-      setContent(newContent);
-      // 即时保存并通知父组件刷新，确保预览实时同步
-      documentStore.save({ ...doc, title, content: newContent });
-      onUpdate();
-    }
-  };
-
   const actualIsMobile = mounted && isMobile;
   const showEditor = mode === 'edit' || (mode === 'live' && !actualIsMobile);
   const showPreview = mode === 'preview' || (mode === 'live');
@@ -245,7 +217,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
               mode === 'live' && actualIsMobile && "hidden"
             )}>
               <div className="h-full overflow-y-auto scroll-smooth">
-                 <MarkViewer content={content} forwardedRef={previewRef} onToggleTask={handleToggleTask} />
+                 <MarkViewer content={content} forwardedRef={previewRef} />
               </div>
             </div>
           )}

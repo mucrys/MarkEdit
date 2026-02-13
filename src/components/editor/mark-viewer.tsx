@@ -13,7 +13,6 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import 'katex/dist/katex.min.css';
 
-// 恢复到最基础的默认配置，确保字符显示正常
 if (typeof window !== 'undefined') {
   mermaid.initialize({
     startOnLoad: false,
@@ -54,16 +53,15 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 interface MarkViewerProps {
   content: string;
   forwardedRef?: React.RefObject<HTMLDivElement | null>;
-  onToggleTask?: (lineIndex: number) => void;
 }
 
-export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerProps) {
+export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
   return (
     <div 
       ref={forwardedRef}
       className="markdown-preview p-6 md:p-10 w-full bg-white min-h-full overflow-y-auto scroll-smooth"
     >
-      <article className="prose prose-neutral max-w-none w-full">
+      <article className="prose prose-neutral max-w-none w-full break-words">
         <ReactMarkdown 
           remarkPlugins={[
             remarkGfm, 
@@ -73,42 +71,26 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
           ]}
           rehypePlugins={[rehypeKatex]}
           components={{
-            // 禁用默认 checkbox 渲染，交由 li 统一处理以获得准确行号
-            input: ({ node, ...props }) => {
-              if (props.type === 'checkbox') return null;
-              return <input {...props} />;
-            },
-            li: ({ node, children, checked, ...props }: any) => {
-              // 任务列表项
-              if (checked !== null) {
-                // 利用 MDAST 的 position 信息直接获取该任务项在源码中的起始行号（1-indexed）
-                const lineIndex = node?.position?.start?.line - 1;
-                
+            // 处理内部跳转链接（尤其是脚注），防止点击时浏览器全局滚动导致布局偏移
+            a: ({ node, ...props }: any) => {
+              const href = props.href || '';
+              if (href.startsWith('#')) {
                 return (
-                  <li 
-                    className="list-none flex items-start gap-2 -ml-6 mb-2 group" 
-                    {...props}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      className="cursor-pointer w-4 h-4 mt-1.5 accent-primary rounded border-muted transition-all shrink-0"
-                      readOnly
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (typeof lineIndex === 'number' && lineIndex >= 0) {
-                          onToggleTask?.(lineIndex);
-                        }
-                      }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      {/* 渲染 li 的其余子元素，跳过 remark-gfm 自动生成的第一个 checkbox 子节点 */}
-                      {React.Children.toArray(children).slice(1)}
-                    </div>
-                  </li>
+                  <a 
+                    {...props} 
+                    className="text-primary hover:underline cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const targetId = href.slice(1);
+                      const targetElement = document.getElementById(targetId);
+                      if (targetElement && forwardedRef?.current) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                  />
                 );
               }
-              return <li {...props}>{children}</li>;
+              return <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline" />;
             },
             pre: ({ children }: any) => {
               const childProps = (children as any)?.props || {};
