@@ -46,15 +46,12 @@
   }
 }
 
-/* Safe Area Utilities */
-.safe-top {
-  padding-top: env(safe-area-inset-top);
-}
-.safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
-}
+.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
-/* Markdown Styles */
+.markdown-preview {
+  @apply bg-white;
+}
 .markdown-preview h1 { @apply text-3xl md:text-4xl font-bold mb-6 mt-8 border-b pb-2 text-foreground; }
 .markdown-preview h2 { @apply text-xl md:text-2xl font-semibold mb-4 mt-6 text-foreground; }
 .markdown-preview h3 { @apply text-lg md:text-xl font-medium mb-3 mt-5 text-foreground; }
@@ -62,15 +59,6 @@
 .markdown-preview ul { @apply list-disc pl-6 mb-4 space-y-2; }
 .markdown-preview ol { @apply list-decimal pl-6 mb-4 space-y-2; }
 .markdown-preview blockquote { @apply border-l-4 border-primary/40 pl-4 italic my-6 text-muted-foreground bg-muted/10 py-2 rounded-r-lg; }
-
-/* 代码块优化：更柔和的背景，不那么突兀 */
-.markdown-preview pre { 
-  @apply bg-muted/30 text-foreground p-4 md:p-5 rounded-xl overflow-x-auto my-6 font-code text-sm border border-border/50; 
-}
-.markdown-preview pre code { 
-  @apply bg-transparent p-0 text-foreground font-code;
-  color: inherit !important;
-}
 
 /* 行内代码样式 */
 .markdown-preview :not(pre) > code { 
@@ -83,23 +71,7 @@
 .markdown-preview td { @apply p-2 border border-border; }
 
 /* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/20 rounded-full;
-}
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/40;
-}
-
-/* Touch-specific styles */
-@media (max-width: 768px) {
-  .markdown-preview {
-    @apply p-5;
-  }
-}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-muted-foreground/20 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/40; }

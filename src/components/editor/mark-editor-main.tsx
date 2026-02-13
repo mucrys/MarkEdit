@@ -221,7 +221,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
         )}>
           {/* Editor Panel */}
           <div className={cn(
-            "h-full overflow-hidden flex flex-col bg-white",
+            "h-full flex flex-col bg-white overflow-hidden",
             (mode === 'preview' || (mode === 'live' && typeof window !== 'undefined' && window.innerWidth < 768)) ? "hidden" : "flex"
           )}>
             <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
@@ -236,14 +236,14 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
                   AI Rephrase
                 </Button>
             </div>
-            <div className="flex-1 flex flex-col overflow-hidden bg-white">
+            <div className="flex-1 relative">
               <Textarea
                 ref={textareaRef}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 onScroll={handleScroll}
                 placeholder="Start writing..."
-                className="flex-1 w-full resize-none font-code text-base p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none overflow-y-auto"
+                className="absolute inset-0 w-full h-full resize-none font-code text-base p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent overflow-y-auto"
               />
             </div>
           </div>
@@ -251,7 +251,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
           {/* Preview Panel */}
           <div 
             className={cn(
-              "h-full overflow-hidden bg-muted/20 border-l transition-all duration-300",
+              "h-full overflow-hidden bg-white border-l transition-all duration-300",
               mode === 'edit' ? "hidden" : "block",
               mode === 'preview' ? "border-l-0" : "",
               (mode === 'live' && typeof window !== 'undefined' && window.innerWidth < 768) ? "hidden" : "block"

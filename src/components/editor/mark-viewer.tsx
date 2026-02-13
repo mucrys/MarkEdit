@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useId } from 'react';
+import React, { useEffect, useState, useId, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import mermaid from 'mermaid';
@@ -8,7 +8,7 @@ import mermaid from 'mermaid';
 // Initialize mermaid
 if (typeof window !== 'undefined') {
   mermaid.initialize({
-    startOnLoad: true,
+    startOnLoad: false,
     theme: 'default',
     securityLevel: 'loose',
     fontFamily: 'Inter, sans-serif',
@@ -18,26 +18,34 @@ if (typeof window !== 'undefined') {
 const MermaidChart = ({ chart }: { chart: string }) => {
   const [svg, setSvg] = useState<string>('');
   const id = useId().replace(/:/g, '');
-  const containerId = `mermaid-${id}`;
+  const containerId = `mermaid-svg-${id}`;
+  const isRendered = useRef(false);
 
   useEffect(() => {
+    let active = true;
+    
     const renderChart = async () => {
       try {
-        const { svg } = await mermaid.render(containerId, chart);
-        setSvg(svg);
+        // Clear previous state to ensure re-render
+        if (active) {
+          const { svg } = await mermaid.render(`render-${containerId}`, chart);
+          if (active) setSvg(svg);
+        }
       } catch (error) {
         console.error('Mermaid rendering failed:', error);
       }
     };
 
-    if (chart) {
-      renderChart();
-    }
+    renderChart();
+
+    return () => {
+      active = false;
+    };
   }, [chart, containerId]);
 
   return (
     <div 
-      className="flex justify-center my-6 overflow-x-auto w-full"
+      className="flex justify-center my-8 w-full overflow-x-auto"
       dangerouslySetInnerHTML={{ __html: svg }} 
     />
   );
@@ -55,7 +63,7 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
   return (
     <div 
       ref={forwardedRef}
-      className="markdown-preview p-6 md:p-10 w-full bg-white shadow-sm min-h-full overflow-y-auto scroll-smooth"
+      className="markdown-preview p-6 md:p-10 w-full bg-white min-h-full overflow-y-auto scroll-smooth"
     >
       <article className="prose prose-neutral max-w-none w-full">
         <ReactMarkdown 
@@ -75,19 +83,22 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
               }
               return <input {...props} />;
             },
-            // Handle code blocks specially to hide pre background for mermaid
+            // Handle pre tags to remove background for mermaid
             pre: ({ children }: any) => {
-              // Check if the child code block is mermaid
               const isMermaid = React.isValidElement(children) && 
                                 (children.props as any).className?.includes('language-mermaid');
               
+              if (isMermaid) {
+                return <div className="my-0 p-0 bg-transparent border-none shadow-none">{children}</div>;
+              }
+              
               return (
-                <pre className={isMermaid ? "bg-transparent border-none p-0 my-0 shadow-none overflow-visible" : ""}>
+                <pre className="bg-muted/30 text-foreground p-4 md:p-5 rounded-xl overflow-x-auto my-6 border border-border/50">
                   {children}
                 </pre>
               );
             },
-            // Handle mermaid code blocks
+            // Handle code blocks specially
             code: ({ node, inline, className, children, ...props }: any) => {
               const match = /language-(\w+)/.exec(className || '');
               const language = match ? match[1] : '';
