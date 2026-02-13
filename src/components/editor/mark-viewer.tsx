@@ -1,8 +1,49 @@
+
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState, useId } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import mermaid from 'mermaid';
+
+// Initialize mermaid
+if (typeof window !== 'undefined') {
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+    fontFamily: 'Inter, sans-serif',
+  });
+}
+
+const MermaidChart = ({ chart }: { chart: string }) => {
+  const [svg, setSvg] = useState<string>('');
+  const id = useId().replace(/:/g, '');
+  const containerId = `mermaid-${id}`;
+
+  useEffect(() => {
+    const renderChart = async () => {
+      try {
+        // Clear previous content if any
+        const { svg } = await mermaid.render(containerId, chart);
+        setSvg(svg);
+      } catch (error) {
+        console.error('Mermaid rendering failed:', error);
+      }
+    };
+
+    if (chart) {
+      renderChart();
+    }
+  }, [chart, containerId]);
+
+  return (
+    <div 
+      className="flex justify-center my-6 overflow-x-auto bg-white p-4 rounded-xl border border-border/50"
+      dangerouslySetInnerHTML={{ __html: svg }} 
+    />
+  );
+};
 
 interface MarkViewerProps {
   content: string;
@@ -22,6 +63,7 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
           components={{
+            // Handle checkboxes for task lists
             input: ({ node, ...props }) => {
               if (props.type === 'checkbox') {
                 const currentIndex = taskIndex++;
@@ -34,6 +76,21 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
                 );
               }
               return <input {...props} />;
+            },
+            // Handle mermaid code blocks
+            code: ({ node, inline, className, children, ...props }: any) => {
+              const match = /language-(\w+)/.exec(className || '');
+              const language = match ? match[1] : '';
+
+              if (!inline && language === 'mermaid') {
+                return <MermaidChart chart={String(children).replace(/\n$/, '')} />;
+              }
+
+              return (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              );
             }
           }}
         >
