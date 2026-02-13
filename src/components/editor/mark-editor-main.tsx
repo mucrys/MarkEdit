@@ -12,7 +12,6 @@ import {
   Sparkles, 
   Download, 
   ChevronLeft, 
-  PanelLeft,
   Trash2,
   Columns
 } from 'lucide-react';
@@ -101,7 +100,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
 
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden">
-      <header className="flex items-center justify-between px-4 py-2 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-30 h-14">
+      <header className="flex items-center justify-between px-4 py-2 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-30 h-14 shrink-0">
         <div className="flex items-center gap-3">
           {onBack && (
             <Button variant="ghost" size="icon" onClick={onBack} className="md:hidden">
@@ -164,17 +163,16 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
 
       <main className="flex-1 overflow-hidden relative">
         <div className={cn(
-          "h-full grid transition-all duration-500 ease-in-out",
+          "h-full grid transition-all duration-300",
           mode === 'live' ? "grid-cols-2" : "grid-cols-1"
         )}>
+          {/* Editor Panel */}
           <div className={cn(
-            "h-full overflow-hidden flex flex-col transition-all duration-300",
-            mode === 'preview' ? "hidden" : "block",
-            mode === 'edit' ? "col-span-1" : ""
+            "h-full overflow-hidden flex flex-col bg-white",
+            mode === 'preview' ? "hidden" : "flex"
           )}>
-            <div className="flex-1 flex flex-col bg-white overflow-hidden">
-              <div className="flex justify-end p-2 border-b bg-muted/5">
-                 <Button 
+            <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
+               <Button 
                   size="sm" 
                   variant="outline" 
                   onClick={handleAIRephrase} 
@@ -184,24 +182,24 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
                   <Sparkles className={cn("w-3.5 h-3.5 mr-2", isRephrasing && "animate-pulse")} />
                   AI Rephrase
                 </Button>
-              </div>
-              <div className="flex-1 overflow-hidden relative">
-                <Textarea
-                  ref={textareaRef}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  onScroll={handleScroll}
-                  placeholder="Start writing in Markdown..."
-                  className="absolute inset-0 resize-none font-code text-base p-6 md:p-8 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none h-full w-full"
-                />
-              </div>
+            </div>
+            <div className="flex-1 relative overflow-hidden">
+              <Textarea
+                ref={textareaRef}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onScroll={handleScroll}
+                placeholder="Start writing in Markdown..."
+                className="absolute inset-0 resize-none font-code text-base p-6 md:p-8 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none h-full w-full overflow-y-auto"
+              />
             </div>
           </div>
 
+          {/* Preview Panel */}
           <div className={cn(
-            "h-full overflow-hidden bg-muted/20 transition-all duration-300",
+            "h-full overflow-hidden bg-muted/20 border-l transition-all duration-300",
             mode === 'edit' ? "hidden" : "block",
-            mode === 'preview' ? "col-span-1" : "border-l"
+            mode === 'preview' ? "border-l-0" : ""
           )}>
             <div className="h-full overflow-y-auto scroll-smooth">
                <MarkViewer content={content} forwardedRef={previewRef} />
@@ -210,7 +208,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
         </div>
       </main>
 
-      <footer className="px-4 py-1.5 text-[10px] text-muted-foreground bg-white border-t flex justify-between uppercase tracking-widest font-medium">
+      <footer className="px-4 py-1.5 text-[10px] text-muted-foreground bg-white border-t flex justify-between uppercase tracking-widest font-medium shrink-0">
         <div className="flex gap-4">
           <span>{content.length} characters</span>
           <span>{content.split(/\s+/).filter(Boolean).length} words</span>
