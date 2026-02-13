@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useId } from 'react';
@@ -59,7 +58,7 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
   return (
     <div 
       ref={forwardedRef}
-      className="markdown-preview p-6 md:p-10 w-full bg-white min-h-full overflow-y-auto scroll-smooth"
+      className="markdown-preview p-6 md:p-10 w-full bg-white h-full overflow-y-auto scroll-smooth"
     >
       <article className="prose prose-neutral max-w-none w-full break-words">
         <ReactMarkdown 
@@ -71,7 +70,6 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
           ]}
           rehypePlugins={[rehypeKatex]}
           components={{
-            // 处理内部跳转链接（尤其是脚注），防止点击时浏览器全局滚动导致布局偏移
             a: ({ node, ...props }: any) => {
               const href = props.href || '';
               if (href.startsWith('#')) {
@@ -81,10 +79,19 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
                     className="text-primary hover:underline cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
-                      const targetId = href.slice(1);
-                      const targetElement = document.getElementById(targetId);
+                      const targetId = decodeURIComponent(href.slice(1));
+                      // 某些解析器会添加前缀，尝试查找原始 ID 或前缀 ID
+                      const targetElement = document.getElementById(targetId) || document.getElementById(`user-content-${targetId}`);
                       if (targetElement && forwardedRef?.current) {
-                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        const container = forwardedRef.current;
+                        const containerRect = container.getBoundingClientRect();
+                        const targetRect = targetElement.getBoundingClientRect();
+                        const relativeTop = targetRect.top - containerRect.top + container.scrollTop;
+                        
+                        container.scrollTo({
+                          top: relativeTop,
+                          behavior: 'smooth'
+                        });
                       }
                     }}
                   />

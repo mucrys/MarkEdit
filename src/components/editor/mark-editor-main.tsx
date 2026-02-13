@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -213,12 +212,10 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
 
           {showPreview && (
             <div className={cn(
-              "h-full overflow-hidden bg-white",
+              "h-full bg-white overflow-hidden",
               mode === 'live' && actualIsMobile && "hidden"
             )}>
-              <div className="h-full overflow-y-auto scroll-smooth">
-                 <MarkViewer content={content} forwardedRef={previewRef} />
-              </div>
+              <MarkViewer content={content} forwardedRef={previewRef} />
             </div>
           )}
         </div>
