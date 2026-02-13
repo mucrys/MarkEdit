@@ -101,21 +101,25 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
     preview.scrollTop = ratio * (preview.scrollHeight - preview.clientHeight);
   };
 
-  const handleToggleTask = (index: number) => {
+  // 关键修复：任务列表精准状态翻转
+  const handleToggleTask = (targetIndex: number) => {
     const lines = content.split('\n');
-    let taskCount = 0;
+    let currentCheckboxIndex = 0;
+    
+    // 匹配 GFM 任务列表：支持缩进、支持 - * + 符号、支持 [ ] [x] [X]
+    const taskRegex = /^(\s*[-*+]\s+\[)([ xX])(\].*)/;
+
     const newLines = lines.map(line => {
-      // 增强正则：匹配任务列表语法 - [ ] 或 - [x] 或 - [X]
-      const taskMatch = line.match(/^(\s*[-*+]\s+\[)([ xX])(\].*)/);
-      if (taskMatch) {
-        if (taskCount === index) {
-          const currentStatus = taskMatch[2];
-          const newStatus = (currentStatus === ' ' || currentStatus === '') ? 'x' : ' ';
-          const updatedLine = `${taskMatch[1]}${newStatus}${taskMatch[3]}`;
-          taskCount++;
+      if (taskRegex.test(line)) {
+        if (currentCheckboxIndex === targetIndex) {
+          const updatedLine = line.replace(taskRegex, (match, p1, p2, p3) => {
+            const newStatus = (p2 === ' ' || p2 === '') ? 'x' : ' ';
+            return `${p1}${newStatus}${p3}`;
+          });
+          currentCheckboxIndex++;
           return updatedLine;
         }
-        taskCount++;
+        currentCheckboxIndex++;
       }
       return line;
     });

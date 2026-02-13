@@ -20,7 +20,6 @@ if (typeof window !== 'undefined') {
     securityLevel: 'loose',
     fontFamily: 'Inter, sans-serif',
     themeVariables: {
-      // 基础节点样式：白底灰边
       primaryColor: '#ffffff',
       primaryTextColor: '#1f2937',
       primaryBorderColor: '#d1d5db',
@@ -33,7 +32,7 @@ if (typeof window !== 'undefined') {
       clusterBkg: '#f3f4f6',
       clusterBorder: '#d1d5db',
       fontSize: '14px',
-      // 彻底去除连接线上文字（如“是/否”）的背景色，使其透明
+      // 关键修复：彻底移除连线文字背景
       edgeLabelBackground: 'transparent',
       tertiaryTextColor: '#4b5563',
     },
@@ -41,7 +40,8 @@ if (typeof window !== 'undefined') {
       htmlLabels: true,
       curve: 'basis',
       useMaxWidth: true,
-      padding: 15, // 增加内边距防止文字截断
+      // 关键修复：增加内边距防止文字截断
+      padding: 20,
     },
   });
 }
@@ -56,7 +56,6 @@ const MermaidChart = ({ chart }: { chart: string }) => {
     const renderChart = async () => {
       if (!chart.trim()) return;
       try {
-        // 每次渲染前清理并重新生成
         const { svg: renderedSvg } = await mermaid.render(`render-${containerId}`, chart);
         if (active) setSvg(renderedSvg);
       } catch (error) {
@@ -82,7 +81,7 @@ interface MarkViewerProps {
 }
 
 export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerProps) {
-  // 渲染时重置任务索引
+  // 渲染时重置任务索引，确保与源码匹配
   let taskIndex = 0;
 
   return (
@@ -124,7 +123,6 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
               const isMermaid = className.includes('language-mermaid');
               
               if (isMermaid) {
-                // Mermaid 容器彻底透明，无缝嵌入
                 return <div className="my-2 p-0 bg-transparent border-none overflow-visible">{children}</div>;
               }
               
