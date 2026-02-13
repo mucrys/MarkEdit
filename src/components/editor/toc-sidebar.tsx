@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo } from 'react';
@@ -36,7 +35,7 @@ export function TocSidebar({ content, isOpen, onClose, onSelect, language = 'zh'
         const level = match[1].length;
         const rawText = match[2].trim().replace(/\s*#+$/, '');
         const text = rawText.replace(/[*_~`]/g, '');
-        const id = slugify(text);
+        const id = slugify(text); // 使用统一导出的 slugify 算法
           
         if (id) {
           items.push({ id, text, level });
