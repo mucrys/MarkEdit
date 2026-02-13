@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useId } from 'react';
@@ -24,7 +23,6 @@ const MermaidChart = ({ chart }: { chart: string }) => {
   useEffect(() => {
     const renderChart = async () => {
       try {
-        // Clear previous content if any
         const { svg } = await mermaid.render(containerId, chart);
         setSvg(svg);
       } catch (error) {
@@ -39,7 +37,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 
   return (
     <div 
-      className="flex justify-center my-6 overflow-x-auto bg-white p-4 rounded-xl border border-border/50"
+      className="flex justify-center my-6 overflow-x-auto w-full"
       dangerouslySetInnerHTML={{ __html: svg }} 
     />
   );
@@ -76,6 +74,18 @@ export function MarkViewer({ content, forwardedRef, onToggleTask }: MarkViewerPr
                 );
               }
               return <input {...props} />;
+            },
+            // Handle code blocks specially to hide pre background for mermaid
+            pre: ({ children }: any) => {
+              // Check if the child code block is mermaid
+              const isMermaid = React.isValidElement(children) && 
+                                (children.props as any).className?.includes('language-mermaid');
+              
+              return (
+                <pre className={isMermaid ? "bg-transparent border-none p-0 my-0 shadow-none overflow-visible" : ""}>
+                  {children}
+                </pre>
+              );
             },
             // Handle mermaid code blocks
             code: ({ node, inline, className, children, ...props }: any) => {

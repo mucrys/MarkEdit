@@ -125,9 +125,9 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
       }
       return line;
     });
-    setContent(newLines.join('\n'));
-    // Auto-save on task toggle
-    documentStore.save({ ...doc, title, content: newLines.join('\n') });
+    const newContent = newLines.join('\n');
+    setContent(newContent);
+    documentStore.save({ ...doc, title, content: newContent });
     onUpdate();
   };
 
@@ -221,7 +221,7 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
         )}>
           {/* Editor Panel */}
           <div className={cn(
-            "h-full overflow-hidden flex flex-col bg-white relative",
+            "h-full overflow-hidden flex flex-col bg-white",
             (mode === 'preview' || (mode === 'live' && typeof window !== 'undefined' && window.innerWidth < 768)) ? "hidden" : "flex"
           )}>
             <div className="shrink-0 flex justify-end p-2 border-b bg-muted/5">
@@ -236,14 +236,14 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
                   AI Rephrase
                 </Button>
             </div>
-            <div className="flex-1 relative overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-hidden bg-white">
               <Textarea
                 ref={textareaRef}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 onScroll={handleScroll}
                 placeholder="Start writing..."
-                className="absolute inset-0 resize-none font-code text-base p-4 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none h-full w-full overflow-y-auto"
+                className="flex-1 w-full resize-none font-code text-base p-6 md:p-10 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none overflow-y-auto"
               />
             </div>
           </div>
@@ -262,18 +262,6 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
                <MarkViewer content={content} forwardedRef={previewRef} onToggleTask={handleToggleTask} />
             </div>
           </div>
-
-          {/* Fallback for Live mode on very small screens if both hidden */}
-          {mode === 'live' && typeof window !== 'undefined' && window.innerWidth < 768 && (
-            <div className="h-full flex flex-col items-center justify-center p-6 text-center text-muted-foreground bg-white">
-              <Columns className="w-12 h-12 mb-4 opacity-20" />
-              <p className="text-sm">Split screen (Live mode) is optimized for larger displays. Please use Edit or View mode on this device.</p>
-              <div className="flex gap-2 mt-6">
-                <Button variant="outline" size="sm" onClick={() => setMode('edit')}>Switch to Edit</Button>
-                <Button variant="outline" size="sm" onClick={() => setMode('preview')}>Switch to View</Button>
-              </div>
-            </div>
-          )}
         </div>
       </main>
 
