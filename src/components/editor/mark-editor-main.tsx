@@ -19,6 +19,17 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { rephraseSelectedMarkdownText } from '@/ai/flows/rephrase-selected-markdown-text';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface MarkEditorMainProps {
   doc: MarkDoc;
@@ -115,6 +126,9 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
       return line;
     });
     setContent(newLines.join('\n'));
+    // Auto-save on task toggle
+    documentStore.save({ ...doc, title, content: newLines.join('\n') });
+    onUpdate();
   };
 
   return (
@@ -173,10 +187,29 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
           <Button variant="ghost" size="icon" onClick={handleExport} title="Export" className="w-8 h-8 md:w-10 md:h-10">
             <Download className="w-4 h-4" />
           </Button>
+          
           {onDelete && (
-             <Button variant="ghost" size="icon" onClick={onDelete} className="text-destructive hover:text-destructive hover:bg-destructive/10 w-8 h-8 md:w-10 md:h-10">
-               <Trash2 className="w-4 h-4" />
-             </Button>
+             <AlertDialog>
+               <AlertDialogTrigger asChild>
+                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 w-8 h-8 md:w-10 md:h-10">
+                   <Trash2 className="w-4 h-4" />
+                 </Button>
+               </AlertDialogTrigger>
+               <AlertDialogContent>
+                 <AlertDialogHeader>
+                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                   <AlertDialogDescription>
+                     This action cannot be undone. This will permanently delete your document.
+                   </AlertDialogDescription>
+                 </AlertDialogHeader>
+                 <AlertDialogFooter>
+                   <AlertDialogCancel>Cancel</AlertDialogCancel>
+                   <AlertDialogAction onClick={onDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                     Delete Document
+                   </AlertDialogAction>
+                 </AlertDialogFooter>
+               </AlertDialogContent>
+             </AlertDialog>
           )}
         </div>
       </header>
@@ -250,8 +283,8 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
           <span className="hidden xs:inline">{content.split(/\s+/).filter(Boolean).length} WORDS</span>
         </div>
         <div className="flex gap-2 items-center">
-          <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-          <span>Auto-Save</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
+          <span>Local Persistence</span>
         </div>
       </footer>
     </div>

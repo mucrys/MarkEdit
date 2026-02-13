@@ -1,9 +1,22 @@
-import type {Metadata} from 'next';
+import type {Metadata, Viewport} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'MarkEdit - Professional Markdown Editor',
-  description: 'Cross-platform Markdown document viewer and editor for mobile and desktop',
+  description: 'Cross-platform Markdown document viewer and editor for Android, HarmonyOS, iOS, and Desktop.',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'MarkEdit',
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
