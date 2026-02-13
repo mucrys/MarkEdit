@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo } from 'react';
@@ -25,7 +26,6 @@ export function TocSidebar({ content, isOpen, onClose, onSelect, language = 'zh'
   const t = translations[language];
   
   const headings = useMemo(() => {
-    // 移除代码块内容，避免误匹配代码块内部的 #
     const cleanContent = content.replace(/```[\s\S]*?```/g, '');
     const lines = cleanContent.split('\n');
     const items: TocItem[] = [];
@@ -34,8 +34,7 @@ export function TocSidebar({ content, isOpen, onClose, onSelect, language = 'zh'
       const match = line.match(/^(#{1,6})\s+(.*)$/);
       if (match) {
         const level = match[1].length;
-        const rawText = match[2].trim().replace(/\s*#+$/, ''); // 移除结尾的 #
-        // 移除基本的 Markdown 格式化字符，以便提取纯文本
+        const rawText = match[2].trim().replace(/\s*#+$/, '');
         const text = rawText.replace(/[*_~`]/g, '');
         const id = slugify(text);
           

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -51,7 +52,6 @@ export default function MarkEditApp() {
     if (activeDoc) {
       const updated = docs.find(d => d.id === activeDoc.id);
       if (updated) {
-        // 使用新对象引用以确保子组件感知到文档变更并触发重载
         setActiveDoc({ ...updated });
       }
     }
@@ -60,7 +60,7 @@ export default function MarkEditApp() {
   const handleNewDoc = () => {
     const newDoc = documentStore.create(t.untitled, '');
     setDocuments(documentStore.getAll());
-    setActiveDoc(newDoc);
+    setActiveDoc({ ...newDoc });
   };
 
   const handleDeleteDoc = () => {
@@ -68,8 +68,8 @@ export default function MarkEditApp() {
     documentStore.delete(activeDoc.id);
     const docs = documentStore.getAll();
     setDocuments(docs);
-    setActiveDoc(docs.length > 0 ? docs[0] : null);
-    toast({ title: t.deleteTitle, description: t.deleteDesc });
+    setActiveDoc(docs.length > 0 ? { ...docs[0] } : null);
+    toast({ title: t.deleteSuccess, description: t.deleteSuccessDesc });
   };
 
   const handleImportTrigger = () => {
@@ -85,15 +85,9 @@ export default function MarkEditApp() {
       const content = event.target?.result as string;
       const title = file.name.replace('.md', '');
       
-      // 创建新文档并存入本地
       const importedDoc = documentStore.create(title, content);
-      
-      // 更新全局文档列表
       const allDocs = documentStore.getAll();
       setDocuments(allDocs);
-      
-      // 立即激活新导入的文档。
-      // 注意：使用对象解构确保 setActiveDoc 接收到一个新引用。
       setActiveDoc({ ...importedDoc });
       
       toast({ title: t.importSuccess, description: `${t.importDesc}: ${file.name}` });

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, useId } from 'react';
@@ -23,6 +24,16 @@ if (typeof window !== 'undefined') {
     fontFamily: 'Inter, sans-serif',
   });
 }
+
+// Unified slugify function for both TocSidebar and MarkViewer
+export const slugify = (text: string): string => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\u4e00-\u9fa5a-z0-9\s-]/g, '') // Keep Chinese, letters, numbers
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
 
 const MermaidChart = ({ chart }: { chart: string }) => {
   const [svg, setSvg] = useState<string>('');
@@ -105,28 +116,11 @@ interface MarkViewerProps {
   theme?: AppTheme;
 }
 
-// Utility to extract plain text from React children recursively
 const extractText = (node: any): string => {
-  if (typeof node === 'string' || typeof node === 'number') {
-    return String(node);
-  }
-  if (Array.isArray(node)) {
-    return node.map(extractText).join('');
-  }
-  if (React.isValidElement(node) && node.props && 'children' in node.props) {
-    return extractText(node.props.children);
-  }
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(extractText).join('');
+  if (React.isValidElement(node) && node.props && 'children' in node.props) return extractText(node.props.children);
   return '';
-};
-
-// Unified slugify function to match TocSidebar
-export const slugify = (text: string): string => {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^\u4e00-\u9fa5a-z0-9\s-]/g, '') // Keep Chinese, Latin letters, and numbers
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
 };
 
 export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
