@@ -185,14 +185,16 @@ export function MarkEditorMain({ doc, onUpdate, onBack, onDelete }: MarkEditorMa
                   AI Rephrase
                 </Button>
               </div>
-              <Textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                onScroll={handleScroll}
-                placeholder="Start writing in Markdown..."
-                className="flex-1 resize-none font-code text-base p-6 md:p-8 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none h-full w-full"
-              />
+              <div className="flex-1 overflow-hidden relative">
+                <Textarea
+                  ref={textareaRef}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  onScroll={handleScroll}
+                  placeholder="Start writing in Markdown..."
+                  className="absolute inset-0 resize-none font-code text-base p-6 md:p-8 leading-relaxed border-none focus-visible:ring-0 shadow-none bg-transparent rounded-none h-full w-full"
+                />
+              </div>
             </div>
           </div>
 
