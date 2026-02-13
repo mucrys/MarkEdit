@@ -24,14 +24,24 @@
     --input: 261 10% 85%;
     --ring: 261 51% 47%;
     --radius: 0.75rem;
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 261 10% 15%;
-    --sidebar-primary: 261 51% 47%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 267 96% 95%;
-    --sidebar-accent-foreground: 261 51% 30%;
-    --sidebar-border: 261 10% 90%;
-    --sidebar-ring: 261 51% 47%;
+  }
+  .dark {
+    --background: 261 10% 5%;
+    --foreground: 0 0% 98%;
+    --card: 261 10% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 261 10% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 261 51% 55%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 261 20% 15%;
+    --secondary-foreground: 261 51% 70%;
+    --muted: 261 15% 12%;
+    --muted-foreground: 261 10% 60%;
+    --accent: 261 50% 25%;
+    --accent-foreground: 267 96% 90%;
+    --border: 261 15% 15%;
+    --input: 261 15% 15%;
   }
 }
 
@@ -50,7 +60,7 @@
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
 .markdown-preview {
-  @apply bg-white;
+  @apply bg-background transition-colors duration-300;
 }
 .markdown-preview h1 { @apply text-3xl md:text-4xl font-bold mb-6 mt-8 border-b pb-2 text-foreground; }
 .markdown-preview h2 { @apply text-xl md:text-2xl font-semibold mb-4 mt-6 text-foreground; }
@@ -60,15 +70,6 @@
 .markdown-preview ol { @apply list-decimal pl-6 mb-4 space-y-2; }
 .markdown-preview blockquote { @apply border-l-4 border-primary/40 pl-4 italic my-6 text-muted-foreground bg-muted/10 py-2 rounded-r-lg; }
 
-.markdown-preview :not(pre) > code { 
-  @apply font-code text-[0.85em] bg-accent/20 px-1.5 py-0.5 rounded text-accent-foreground; 
-}
-
-.markdown-preview mark {
-  @apply bg-yellow-200 text-black px-1 rounded;
-}
-
-.markdown-preview hr { @apply my-8 border-muted; }
 .markdown-preview table { 
   display: block;
   width: 100%;
@@ -96,7 +97,6 @@
 ::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/40; }
 
 @media print {
-  /* 强制隐藏所有不需要打印的 UI 元素 */
   [data-sidebar="sidebar"],
   header,
   footer,
@@ -111,7 +111,6 @@
     display: none !important;
   }
 
-  /* 重置打印容器 */
   html, body {
     overflow: visible !important;
     height: auto !important;
@@ -121,7 +120,6 @@
     padding: 0 !important;
   }
 
-  /* 展开所有祖先容器以显示内容 */
   .sidebar-provider,
   .sidebar-inset,
   main,
@@ -136,14 +134,13 @@
     border: none !important;
   }
 
-  /* 重点优化预览区 */
   .markdown-preview {
     display: block !important;
     position: static !important;
     width: 100% !important;
     height: auto !important;
     overflow: visible !important;
-    padding: 2cm !important; /* 标准打印页边距 */
+    padding: 2cm !important;
     margin: 0 !important;
     background: white !important;
     visibility: visible !important;
@@ -155,7 +152,6 @@
     visibility: visible !important;
   }
 
-  /* 打印时避免元素分裂 */
   pre, blockquote, table, figure, .block {
     page-break-inside: avoid;
   }

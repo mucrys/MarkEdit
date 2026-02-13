@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useId } from 'react';
@@ -25,14 +24,20 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// Unified slugify function for both TocSidebar and MarkViewer
 export const slugify = (text: string): string => {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^\u4e00-\u9fa5a-z0-9\s-]/g, '') // Keep Chinese, letters, numbers
+    .replace(/[^\u4e00-\u9fa5a-z0-9\s-]/g, '')
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '');
+};
+
+const extractText = (node: any): string => {
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(extractText).join('');
+  if (React.isValidElement(node) && node.props && 'children' in node.props) return extractText(node.props.children);
+  return '';
 };
 
 const MermaidChart = ({ chart }: { chart: string }) => {
@@ -116,17 +121,8 @@ interface MarkViewerProps {
   theme?: AppTheme;
 }
 
-const extractText = (node: any): string => {
-  if (typeof node === 'string' || typeof node === 'number') return String(node);
-  if (Array.isArray(node)) return node.map(extractText).join('');
-  if (React.isValidElement(node) && node.props && 'children' in node.props) return extractText(node.props.children);
-  return '';
-};
-
 export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
-  const generateId = (children: any) => {
-    return slugify(extractText(children));
-  };
+  const generateId = (children: any) => slugify(extractText(children));
 
   return (
     <div 
@@ -156,20 +152,14 @@ export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
                       const targetId = decodeURIComponent(href.slice(1));
                       const container = forwardedRef?.current;
                       if (!container) return;
-
                       const targetElement = 
                         container.querySelector(`[id="${targetId}"]`) || 
                         container.querySelector(`[id="user-content-${targetId}"]`);
-
                       if (targetElement) {
                         const containerRect = container.getBoundingClientRect();
                         const targetRect = targetElement.getBoundingClientRect();
                         const relativeTop = targetRect.top - containerRect.top + container.scrollTop;
-                        
-                        container.scrollTo({
-                          top: relativeTop - 20,
-                          behavior: 'smooth'
-                        });
+                        container.scrollTo({ top: relativeTop - 20, behavior: 'smooth' });
                       }
                     }}
                   />
@@ -183,37 +173,14 @@ export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
             h4: ({ children }) => <h4 id={generateId(children)}>{children}</h4>,
             h5: ({ children }) => <h5 id={generateId(children)}>{children}</h5>,
             h6: ({ children }) => <h6 id={generateId(children)}>{children}</h6>,
-            pre: ({ children }: any) => {
-              return <span className="block">{children}</span>;
-            },
+            pre: ({ children }: any) => <span className="block">{children}</span>,
             code: ({ node, className, children, ...props }: any) => {
               const match = /language-(\w+)/.exec(className || '');
               const language = match ? match[1] : '';
               const isBlockCode = !!match || (node?.position?.start?.line !== node?.position?.end?.line);
-
-              if (isBlockCode && language === 'mermaid') {
-                return <MermaidChart chart={String(children).replace(/\n$/, '')} />;
-              }
-
-              if (isBlockCode) {
-                return (
-                  <CodeBlock language={language} theme={theme} {...props}>
-                    {children}
-                  </CodeBlock>
-                );
-              }
-
-              return (
-                <code 
-                  className={cn(
-                    "bg-muted/50 px-1.5 py-0.5 rounded text-[0.85em] font-code text-accent-foreground",
-                    className
-                  )} 
-                  {...props}
-                >
-                  {children}
-                </code>
-              );
+              if (isBlockCode && language === 'mermaid') return <MermaidChart chart={String(children).replace(/\n$/, '')} />;
+              if (isBlockCode) return <CodeBlock language={language} theme={theme} {...props}>{children}</CodeBlock>;
+              return <code className={cn("bg-muted/50 px-1.5 py-0.5 rounded text-[0.85em] font-code text-accent-foreground", className)} {...props}>{children}</code>;
             }
           }}
         >

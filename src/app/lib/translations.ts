@@ -1,4 +1,3 @@
-
 export const translations = {
   zh: {
     appName: 'MarkEdit',

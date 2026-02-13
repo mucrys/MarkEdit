@@ -21,7 +21,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#7c3aed', // 使用 primary 颜色作为主题色
+  themeColor: '#7c3aed',
 };
 
 export default function RootLayout({

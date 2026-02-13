@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -86,8 +85,7 @@ export default function MarkEditApp() {
       const title = file.name.replace('.md', '');
       
       const importedDoc = documentStore.create(title, content);
-      const allDocs = documentStore.getAll();
-      setDocuments(allDocs);
+      setDocuments(documentStore.getAll());
       setActiveDoc({ ...importedDoc });
       
       toast({ title: t.importSuccess, description: `${t.importDesc}: ${file.name}` });
