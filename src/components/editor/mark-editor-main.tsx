@@ -11,7 +11,8 @@ import {
   Save, 
   Sparkles, 
   Trash2,
-  Columns
+  Columns,
+  ListTree
 } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { rephraseSelectedMarkdownText } from '@/ai/flows/rephrase-selected-markdown-text';
@@ -29,6 +30,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { TocSidebar } from './toc-sidebar';
 
 interface MarkEditorMainProps {
   doc: MarkDoc;
@@ -43,7 +45,9 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
   const [content, setContent] = useState(doc.content);
   const [title, setTitle] = useState(doc.title);
   const [isRephrasing, setIsRephrasing] = useState(false);
+  const [showToc, setShowToc] = useState(false);
   const [mounted, setMounted] = useState(false);
+  
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -105,7 +109,7 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
   const showPreview = mode === 'preview' || (mode === 'live');
 
   return (
-    <div className="flex flex-col h-full bg-background overflow-hidden safe-top safe-bottom">
+    <div className="flex flex-col h-full bg-background overflow-hidden safe-top safe-bottom relative">
       <header className="flex items-center justify-between px-4 py-2 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-30 h-14 shrink-0">
         <div className="flex items-center gap-1 md:gap-2 overflow-hidden">
           <SidebarTrigger className="mr-1" />
@@ -149,6 +153,17 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
           </div>
 
           <div className="hidden md:block w-px h-4 bg-border mx-1" />
+          
+          <Button 
+            variant={showToc ? "secondary" : "ghost"} 
+            size="icon" 
+            onClick={() => setShowToc(!showToc)}
+            className={cn("w-9 h-9", showToc && "text-primary bg-primary/5")}
+            title="查看目录"
+          >
+            <ListTree className="w-4 h-4" />
+          </Button>
+
           <Button variant="ghost" size="icon" onClick={handleSave} className="text-primary w-9 h-9">
             <Save className="w-4 h-4" />
           </Button>
@@ -175,9 +190,9 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
         </div>
       </header>
 
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden flex">
         <div className={cn(
-          "h-full grid",
+          "flex-1 h-full grid",
           showEditor && showPreview && !actualIsMobile ? "grid-cols-2" : "grid-cols-1"
         )}>
           {showEditor && (
@@ -219,6 +234,25 @@ export function MarkEditorMain({ doc, onUpdate, onDelete }: MarkEditorMainProps)
             </div>
           )}
         </div>
+
+        {/* TOC Sidebar */}
+        <TocSidebar 
+          content={content} 
+          isOpen={showToc} 
+          onClose={() => setShowToc(false)}
+          onSelect={(id) => {
+            if (!previewRef.current) return;
+            const target = previewRef.current.querySelector(`[id="${id}"]`);
+            if (target) {
+              const rect = target.getBoundingClientRect();
+              const containerRect = previewRef.current.getBoundingClientRect();
+              previewRef.current.scrollTo({
+                top: rect.top - containerRect.top + previewRef.current.scrollTop - 20,
+                behavior: 'smooth'
+              });
+            }
+          }}
+        />
       </main>
 
       <footer className="px-4 py-1.5 text-[10px] text-muted-foreground bg-white border-t flex justify-between uppercase tracking-widest font-medium shrink-0 safe-bottom">

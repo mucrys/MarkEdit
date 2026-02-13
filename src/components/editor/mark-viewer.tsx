@@ -99,6 +99,16 @@ interface MarkViewerProps {
 }
 
 export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
+  // 辅助函数：将标题文本转换为安全的 ID
+  const generateId = (text: any) => {
+    return String(text)
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
   return (
     <div 
       ref={forwardedRef}
@@ -127,7 +137,6 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
                       const container = forwardedRef?.current;
                       if (!container) return;
 
-                      // 查找目标元素，兼容 remark-gfm 的前缀 ID
                       const targetElement = 
                         document.getElementById(targetId) || 
                         container.querySelector(`[id="${targetId}"]`) ||
@@ -139,7 +148,7 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
                         const relativeTop = targetRect.top - containerRect.top + container.scrollTop;
                         
                         container.scrollTo({
-                          top: relativeTop - 20, // 留一点边距
+                          top: relativeTop - 20,
                           behavior: 'smooth'
                         });
                       }
@@ -149,8 +158,13 @@ export function MarkViewer({ content, forwardedRef }: MarkViewerProps) {
               }
               return <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline" />;
             },
+            h1: ({ children }) => <h1 id={generateId(children)}>{children}</h1>,
+            h2: ({ children }) => <h2 id={generateId(children)}>{children}</h2>,
+            h3: ({ children }) => <h3 id={generateId(children)}>{children}</h3>,
+            h4: ({ children }) => <h4 id={generateId(children)}>{children}</h4>,
+            h5: ({ children }) => <h5 id={generateId(children)}>{children}</h5>,
+            h6: ({ children }) => <h6 id={generateId(children)}>{children}</h6>,
             pre: ({ children }: any) => {
-              // 这里的 children 通常是一个 code 组件
               return <>{children}</>;
             },
             code: ({ node, inline, className, children, ...props }: any) => {
