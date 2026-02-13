@@ -116,7 +116,7 @@ export default function MarkEditApp() {
                  </div>
                  <h1 className="text-3xl font-bold font-headline">Welcome to MarkEdit</h1>
                  <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
-                   The minimalist iOS-friendly Markdown editor. Create your first document or import an existing one to get started.
+                   The minimalist cross-platform Markdown editor. Seamless writing experience across Android, HarmonyOS, iOS, and Desktop.
                  </p>
                  <div className="flex gap-4">
                     <Button onClick={handleNewDoc} className="shadow-lg px-8">Create New</Button>

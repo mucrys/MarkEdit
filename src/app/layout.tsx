@@ -1,10 +1,9 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'MarkEdit - Professional Markdown Editor',
-  description: 'iOS-friendly Markdown document viewer and editor',
+  description: 'Cross-platform Markdown document viewer and editor for mobile and desktop',
 };
 
 export default function RootLayout({
