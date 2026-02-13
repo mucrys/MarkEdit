@@ -4,7 +4,7 @@ import * as React from "react"
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1500 // 1.5秒自动消失，提升响应感
+const TOAST_REMOVE_DELAY = 1500 // 缩短为 1.5 秒
 
 type ToasterToast = ToastProps & {
   id: string

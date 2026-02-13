@@ -85,6 +85,7 @@ export default function MarkEditApp() {
       const title = file.name.replace('.md', '');
       const importedDoc = documentStore.create(title, content);
       setDocuments(documentStore.getAll());
+      // 强制设置一个新的引用，确保编辑器感知到内容变化
       setActiveDoc({ ...importedDoc });
       toast({ title: t.importSuccess, description: `${t.importDesc}: ${file.name}` });
       if (fileInputRef.current) fileInputRef.current.value = '';
