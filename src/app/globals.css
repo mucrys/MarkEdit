@@ -53,8 +53,22 @@
 .markdown-preview ul { @apply list-disc pl-6 mb-4 space-y-2; }
 .markdown-preview ol { @apply list-decimal pl-6 mb-4 space-y-2; }
 .markdown-preview blockquote { @apply border-l-4 border-primary/40 pl-4 italic my-6 text-muted-foreground bg-muted/10 py-2 rounded-r-lg; }
-.markdown-preview pre { @apply bg-zinc-900 text-zinc-100 p-5 rounded-xl overflow-x-auto my-6 font-code text-sm shadow-xl; }
-.markdown-preview code { @apply font-code text-[0.85em] bg-accent/20 px-1.5 py-0.5 rounded text-accent-foreground; }
+
+/* 代码块样式优化 */
+.markdown-preview pre { 
+  @apply bg-zinc-900 text-zinc-100 p-5 rounded-xl overflow-x-auto my-6 font-code text-sm shadow-xl; 
+}
+/* 确保代码块内的 code 标签不应用行内样式 */
+.markdown-preview pre code { 
+  @apply bg-transparent p-0 text-zinc-100 font-code;
+  color: #f4f4f5 !important; /* 强制使用浅灰色文字 */
+}
+
+/* 行内代码样式 */
+.markdown-preview :not(pre) > code { 
+  @apply font-code text-[0.85em] bg-accent/20 px-1.5 py-0.5 rounded text-accent-foreground; 
+}
+
 .markdown-preview hr { @apply my-8 border-muted; }
 .markdown-preview table { @apply w-full border-collapse mb-6; }
 .markdown-preview th { @apply bg-muted p-2 border border-border font-bold text-left; }
