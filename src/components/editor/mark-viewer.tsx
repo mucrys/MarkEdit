@@ -46,7 +46,7 @@ const MermaidChart = ({ chart }: { chart: string }) => {
   }, [chart, containerId]);
 
   return (
-    <div 
+    <span 
       className="flex justify-center my-8 w-full overflow-x-auto bg-transparent"
       dangerouslySetInnerHTML={{ __html: svg }} 
     />
@@ -68,8 +68,8 @@ const CodeBlock = ({ language, children, theme, ...props }: any) => {
     (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return (
-    <div className="group relative my-6 rounded-lg border border-border/50 bg-muted/20 overflow-hidden">
-      <div className="flex items-center justify-between px-3 py-1 bg-muted/30 border-b border-border/10">
+    <span className="group relative my-6 rounded-lg border border-border/50 bg-muted/20 overflow-hidden block">
+      <span className="flex items-center justify-between px-3 py-1 bg-muted/30 border-b border-border/10">
         <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
           {language || 'text'}
         </span>
@@ -79,23 +79,24 @@ const CodeBlock = ({ language, children, theme, ...props }: any) => {
         >
           {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
         </button>
-      </div>
+      </span>
       <SyntaxHighlighter
         style={isDark ? oneDark : oneLight}
         language={language}
-        PreTag="div"
+        PreTag="span"
         customStyle={{
           margin: 0,
           padding: '1rem',
           fontSize: '0.875rem',
           backgroundColor: 'transparent',
           lineHeight: '1.6',
+          display: 'block'
         }}
         {...props}
       >
         {codeString}
       </SyntaxHighlighter>
-    </div>
+    </span>
   );
 };
 
@@ -138,13 +139,12 @@ export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
                     {...props} 
                     className="text-primary hover:underline cursor-pointer"
                     onClick={(e) => {
-                      // 关键修复：拦截默认锚点跳转，防止全局视窗滚动
                       e.preventDefault();
+                      e.stopPropagation();
                       const targetId = decodeURIComponent(href.slice(1));
                       const container = forwardedRef?.current;
                       if (!container) return;
 
-                      // 在预览容器内部寻找目标元素
                       const targetElement = 
                         container.querySelector(`[id="${targetId}"]`) || 
                         container.querySelector(`[id="user-content-${targetId}"]`);
@@ -152,7 +152,6 @@ export function MarkViewer({ content, forwardedRef, theme }: MarkViewerProps) {
                       if (targetElement) {
                         const containerRect = container.getBoundingClientRect();
                         const targetRect = targetElement.getBoundingClientRect();
-                        // 计算相对于容器的偏移
                         const relativeTop = targetRect.top - containerRect.top + container.scrollTop;
                         
                         container.scrollTo({
